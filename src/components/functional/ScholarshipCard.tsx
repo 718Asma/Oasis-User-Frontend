@@ -1,4 +1,4 @@
-import { ScholarshipProps } from "@/lib/types";
+import React, { useState } from "react";
 import {
     Card,
     CardContent,
@@ -8,82 +8,68 @@ import {
 } from "../ui/card";
 import { Badge } from "../ui/badge";
 import {
-    Calendar,
-    CheckCircle,
     GraduationCap,
     MapPin,
-    XCircle,
+    Star,
 } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
+import { Scholarship } from "@/lib/types";
 
-const ScholarshipComponent = ({
-    imageUrl,
-    deadline,
-    title,
-    location,
-    provider,
-    description,
-    startDate,
-    eligibility,
-    status,
-    handleAction,
-    id,
-}: ScholarshipProps) => {
+interface ScholarshipCardProps {
+    scholarship: Scholarship;
+}
+
+const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) => {
+    const navigate = useNavigate();
+    const [isFavorite, setIsFavorite] = useState<boolean>(false);
+
+    const handleDetails = () => {
+        navigate(`/scholarship/${scholarship.id}`);
+    };
+
+    const handleFavorite = async () => {
+        setIsFavorite(!isFavorite);
+    };
+
     return (
         <Card className="hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="relative p-0">
                 <img
-                    src={imageUrl}
-                    alt={title}
+                    src={scholarship.banner}
+                    alt={scholarship.title}
                     className="w-full h-32 object-cover rounded-t-lg"
                 />
-                <Badge className="absolute top-2 right-2 bg-red-500 text-white">
-                    Deadline: {deadline}
-                </Badge>
             </CardHeader>
             <CardContent className="p-4">
                 <CardTitle className="text-xl font-semibold mb-2">
-                    {title}
+                    {scholarship.title}
                 </CardTitle>
                 <div className="flex items-center text-sm text-gray-600 mb-2">
                     <MapPin className="w-4 h-4 mr-1" />
-                    {location}
+                    {scholarship.location}
                 </div>
                 <div className="flex items-center text-sm text-gray-600 mb-2">
                     <GraduationCap className="w-4 h-4 mr-1" />
-                    {provider}
-                </div>
-                <ScrollArea className="h-24 mb-2">
-                    <p className="text-sm text-gray-600">{description}</p>
-                </ScrollArea>
-                <div className="flex items-center text-sm text-gray-600 mb-1">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    Start Date: {startDate}
-                </div>
-                <div className="text-sm font-medium">
-                    <span className="font-semibold">Eligibility:</span>{" "}
-                    {eligibility}
+                    {scholarship.provider}
                 </div>
             </CardContent>
             <CardFooter className="flex justify-between">
                 <Button
                     variant="outline"
-                    className="flex-1 mr-2 hover:bg-green-100 hover:text-green-700"
-                    onClick={() => handleAction(id, "approve")}
-                    disabled={status !== "pending"}
+                    // className="flex-1 mr-2 hover:bg-green-100 hover:text-green-700"
+                    onClick={handleDetails}
                 >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Approve
+                    Check more details
                 </Button>
                 <Button
                     variant="outline"
-                    className="flex-1 ml-2 hover:bg-red-100 hover:text-red-700"
-                    onClick={() => handleAction(id, "reject")}
-                    disabled={status !== "pending"}
+                    style={{ border: "none" }}
+                    // className="flex-1 ml-2 hover:bg-red-100 hover:text-red-700"
+                    onClick={handleFavorite}
                 >
-                    <XCircle className="w-4 h-4 mr-2" />
-                    Reject
+                    <Star className="w-4 h-4 mr-2" />
                 </Button>
             </CardFooter>
         </Card>

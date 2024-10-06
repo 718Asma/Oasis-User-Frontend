@@ -1,6 +1,8 @@
-import { StrictMode } from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { MantineProvider } from '@mantine/core'; // Import MantineProvider
 import "./index.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import {
     createBrowserRouter,
@@ -8,8 +10,9 @@ import {
     RouterProvider,
 } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home.tsx";
 import ErrorPage from "./error-page.tsx";
+import Scholarship from "./pages/Scholarship.tsx";
 
 const router = createBrowserRouter([
     {
@@ -18,15 +21,21 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
     },
     {
-        path: "/dashboard",
-        element: <Dashboard />,
+        path: "/home",
+        element: <Home />,
     },
+    {
+        path: "/scholarship/:scholarshipId",
+        element: <Scholarship />,
+    }
 ]);
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <RouterProvider router={router} />
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+            <MantineProvider>
+                <RouterProvider router={router} />
+            </MantineProvider>
         </ThemeProvider>
     </StrictMode>
 );

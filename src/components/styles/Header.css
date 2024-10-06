@@ -1,0 +1,53 @@
+.main {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10;
+    margin-bottom: 2%;
+    padding: 1rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+}
+
+img {
+    width: 50px;
+    margin-right: 1rem;
+}
+
+h1
+{
+    font-family: "Bookman Old Style";
+    font-size: 2.5em;
+    color: #2b79c2;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+}
+
+.user p {
+    margin: 0;
+    font-size: 1em;
+}
+
+.button {
+    color: #ED080B;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.connect
+{
+    color: white;
+    background-color: #2b79c2;
+    font-weight: bold;
+}

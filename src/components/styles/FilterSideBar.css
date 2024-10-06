@@ -1,0 +1,48 @@
+.filter
+{
+    padding-top: 1%;
+    padding-left: 3%;
+    width: 60vh;
+}
+
+.filter h2
+{
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+.filter p
+{
+    font-size: 1em;
+    color: gray;
+}
+
+.filter h5
+{
+    font-size: 1.5em;
+    margin-top: 1.5rem;
+}
+
+.values
+{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    width: 35vh;
+}
+
+.values span
+{
+    font-size: 1em;
+    color: gray;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.button
+{
+    border: none;
+    cursor: pointer;
+    margin-top: 4%;
+    float: right;
+}

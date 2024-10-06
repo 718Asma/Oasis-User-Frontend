@@ -1,23 +1,28 @@
-export interface Activity {
+export interface Student {
     id: string;
-    action: string;
-    scholarshipTitle: string;
-    timestamp: string;
+    profilePicture: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    country: string;
+    dateOfBirth: Date;
+    levelOfEducation: string;
+    fieldOfStudy: string;
 }
 
 export interface Scholarship {
     id: string;
     title: string;
-    description: string;
-    eligibility: string;
-    deadline: string;
     location: string;
     provider: string;
-    startDate: string;
-    imageUrl: string;
-    status: "pending" | "approved" | "rejected";
-}
-
-export interface ScholarshipProps extends Scholarship {
-    handleAction: (id: string, action: "approve" | "reject") => void;
+    value: number;
+    deadline: string;
+    banner: string;
+    description: string;
+    applicationStartDate: Date;
+    country: string;
+    minAge: number;
+    levelOfEducation: string;
+    fieldOfStudy: string;
 }
