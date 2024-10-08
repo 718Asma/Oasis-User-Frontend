@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Select,
     SelectContent,
@@ -11,6 +11,7 @@ import { Slider } from "../ui/slider";
 import "../styles/FilterSideBar.css";
 import { Button } from "../ui/button";
 import { Scholarship } from "@/lib/types";
+import { DateInput } from "../ui/date-input";
 
 
 interface FilterSideBarProps {
@@ -21,33 +22,51 @@ interface FilterSideBarProps {
 }
 
 const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, setFiltered, applyFilters, closeSidebar }) => {
+    const [locations, setLocations] = useState<string[]>([]);
     const [location, setLocation] = useState<string>('');
-    const [fieldOfStudy, setFieldOfStudy] = useState<string>('');
-    const [levelOfEducation, setLevelOfEducation] = useState<string>('');
-    const [country, setCountry] = useState<string>('');
-    const [minAge, setMinAge] = useState<number>(0);
-    const [value, setValue] = useState<number>(0);
+    const [deadline, setDeadline] = useState<Date | null>(null);
+    const [provider, setProvider] = useState<string>('');
+
+    useEffect(() => {
+        fetch('http://localhost:3000/scholarships/locations')
+                .then(response => response.json())
+                .then((data: string[]) => {
+                    console.log(data);
+                    let locations: string[] = data;
+                    const uniqueLocations = [...new Set(locations)];
+                    setLocations(uniqueLocations);
+                })
+                .catch(error => {
+                    console.error('Error fetching scholarships:', error);
+                });
+    });
 
     const handleFilters = () => {
         console.log(filteredScholarships);
-        console.log(location, fieldOfStudy, levelOfEducation, country, minAge, value);
+        console.log(location, deadline, provider);
         let filteredList = [...filteredScholarships];
         console.log(filteredList);
 
         if(location != 'all' && location != '') {
             filteredList = filteredList.filter(scholarship => scholarship.location == location);
         }
-        if(fieldOfStudy != 'all' && fieldOfStudy != '') {
-            filteredList = filteredList.filter(scholarship => scholarship.fieldOfStudy == fieldOfStudy);
+        if(provider != 'all' && provider != '') {
+            filteredList = filteredList.filter(scholarship => scholarship.provider == provider);
         }
-        if(levelOfEducation != 'all' && levelOfEducation != '') {
-            filteredList = filteredList.filter(scholarship => scholarship.levelOfEducation == levelOfEducation);
+        if(deadline != null) {
+            filteredList = filteredList.filter(scholarship => {
+                const scholarshipDeadline = new Date(scholarship.deadline);
+                console.log('Scholarship Deadline: ' + scholarshipDeadline.toISOString());
+                console.log('Selected Deadline: ' + deadline.toISOString());
+    
+                return (
+                    scholarshipDeadline.getFullYear() === deadline.getFullYear() &&
+                    scholarshipDeadline.getMonth() === deadline.getMonth() &&
+                    scholarshipDeadline.getDate() === deadline.getDate()
+                );
+            });
+            console.log(filteredList);
         }
-        if(country != 'all' && country != '') {
-            filteredList = filteredList.filter(scholarship => scholarship.country == country);
-        }
-        filteredList = filteredList.filter(scholarship => scholarship.minAge >= minAge);
-        filteredList = filteredList.filter(scholarship => scholarship.value >= value);
 
         console.log(filteredList);
         applyFilters(filteredList);
@@ -70,47 +89,40 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="United States">United States</SelectItem>
-                            <SelectItem value="Worldwide">Worldwide</SelectItem>
-                            <SelectItem value="Europe">Europe</SelectItem>
+                            {locations.map(location => (
+                                <SelectItem value={location}>{location}</SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
             </div>
             <div>
-                <h5>Field Of Study</h5>
+                <h5>Provider</h5>
                 <Select
-                        value={fieldOfStudy}
-                        onValueChange={setFieldOfStudy}
+                        value={provider}
+                        onValueChange={setProvider}
                     >
                         <SelectTrigger className="w-full md:w-[180px]">
-                            <SelectValue placeholder="Filter by Field" />
+                            <SelectValue placeholder="Filter by Provider" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="STEM">STEM</SelectItem>
-                            <SelectItem value="International Relations">International Relations</SelectItem>
-                            <SelectItem value="Creative Arts">Creative Arts</SelectItem>
+                            <SelectItem value="National Science Foundation">National Science Foundation</SelectItem>
+                            <SelectItem value="International Leadership Foundation">International Leadership Foundation</SelectItem>
+                            <SelectItem value="European Arts Council">European Arts Council</SelectItem>
                         </SelectContent>
                     </Select>
             </div>
             <div>
-                <h5>Level Of Education</h5>
-                <Select
-                        value={levelOfEducation}
-                        onValueChange={setLevelOfEducation}
-                    >
-                        <SelectTrigger className="w-full md:w-[180px]">
-                            <SelectValue placeholder="Filter by Level" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                            <SelectItem value="Graduate">Graduate</SelectItem>
-                            <SelectItem value="Masters">Masters</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <h5>Deadline</h5>
+                <DateInput
+                    value={deadline}
+                    onChange={(e) => {
+                        const { value } = e.target;
+                        setDeadline(value ? new Date(value) : null);
+                    }}
+                />
             </div>
-            <div>
+            {/*<div>
                 <h5>Country</h5>
                 <Select
                         value={country}
@@ -156,11 +168,12 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                     <span className="text-sm text-gray-500">$0</span>
                     <span className="text-sm text-gray-500">$10,000+</span>
                 </div>
-            </div>
+            </div>*/}
             <div className="button">
                 <Button onClick={handleFilters}>Apply Filters</Button>
             </div>
         </div>
+
     );
 };
 

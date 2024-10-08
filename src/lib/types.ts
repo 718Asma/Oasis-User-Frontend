@@ -14,15 +14,12 @@ export interface Student {
 export interface Scholarship {
     id: string;
     title: string;
+    description: string;
+    eligibility: string;
+    deadline: Date;
     location: string;
     provider: string;
-    value: number;
-    deadline: string;
-    banner: string;
-    description: string;
-    applicationStartDate: Date;
-    country: string;
-    minAge: number;
-    levelOfEducation: string;
-    fieldOfStudy: string;
+    startDate: Date;
+    imageUrl: string;
+    status: "approved";
 }

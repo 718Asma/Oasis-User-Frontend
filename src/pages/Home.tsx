@@ -18,56 +18,36 @@ export default function Home() {
     const [filtered, setFiltered] = useState<boolean>(false);
 
     useEffect(() => {
-        const scholarshipsData: Scholarship[] = [
-            {
-                id: "1",
-                title: "STEM Excellence Scholarship",
-                location: "United States",
-                provider: "National Science Foundation",
-                value: 1000,
-                deadline: "2024-05-01",
-                banner: "https://g-7eitpa0y6bf.vusercontent.net/placeholder.svg?height=100&width=200",
-                description: "For outstanding students in Science, Technology, Engineering, and Mathematics fields.",
-                applicationStartDate: new Date("2024-01-15"),
-                country: "United States", 
-                minAge: 18, 
-                levelOfEducation: "Undergraduate", 
-                fieldOfStudy: "STEM", 
-            },
-            {
-                id: "2",
-                title: "Global Leadership Grant",
-                location: "Worldwide",
-                provider: "International Leadership Foundation",
-                value: 2000,
-                deadline: "2024-06-15",
-                banner: "https://g-7eitpa0y6bf.vusercontent.net/placeholder.svg?height=100&width=200",
-                description: "Supporting future leaders with a passion for international relations and global issues.",
-                applicationStartDate: new Date("2024-02-01"),
-                country: "Global", 
-                minAge: 21, 
-                levelOfEducation: "Graduate", 
-                fieldOfStudy: "International Relations", 
-            },
-            {
-                id: "3",
-                title: "Creative Arts Fellowship",
-                location: "Europe",
-                provider: "European Arts Council",
-                value: 1500,
-                deadline: "2024-04-30",
-                banner: "https://g-7eitpa0y6bf.vusercontent.net/placeholder.svg?height=100&width=200",
-                description: "Empowering emerging artists to pursue their creative passions and contribute to the arts community.",
-                applicationStartDate: new Date("2024-03-01"),
-                country: "Various", 
-                minAge: 18, 
-                levelOfEducation: "Undergraduate", 
-                fieldOfStudy: "Creative Arts", 
-            },
-        ];
+        const fetchScholarships = async () => { 
+            let scholarshipsData: Scholarship[];
+
+            fetch('http://localhost:3000/scholarships/all')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    scholarshipsData = data;
+                    setAllScholarships(scholarshipsData);
+                    setScholarships(scholarshipsData);
+                })
+                .catch(error => {
+                    console.error('Error fetching scholarships:', error);
+                });
+
+            // try {
+            //     const response = await fetch('http://localhost:3000/scholarships/all');
+            //     console.log(response);
+            //     // scholarshipsData = await response.json();
+            //     // console.log(scholarshipsData);
         
-        setAllScholarships(scholarshipsData);
-        setScholarships(scholarshipsData);
+            //     // setAllScholarships(scholarshipsData);
+            //     // setScholarships(scholarshipsData);
+                
+            // } catch (error) {
+            //     console.error('Error fetching scholarships:', error);
+            // }
+        }
+
+        fetchScholarships();
     }, []);
 
     // useEffect(() => {
