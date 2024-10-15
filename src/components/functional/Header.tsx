@@ -1,37 +1,68 @@
-import React, {useState, useEffect} from 'react';
-
-import { Avatar } from '@mantine/core';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faSignOut } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
 import "../styles/Header.css";
 
 import { Student } from "@/lib/types";
 import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+import oasisLogo from '@/assets/oasis2.png';
 
 const Header = () => {
-    const [user, setUser] = useState<Student>();
+    const navigate = useNavigate();
+    const [user, setUser] = useState<Student | null>(null);
+    const user_id = localStorage.getItem("user_id");
+    const access_token = localStorage.getItem("access_token");
 
-    const handleLogout = () => {};
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            if (!user_id) {
+                console.error("No user id found");
+                return;
+            }
+
+            try {
+                const { data } = await axios.get(`http://localhost:3000/users/id/${user_id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+                console.log("User info:", data);
+                const profileImgUrl = data.profilePicture 
+                    ? `http://localhost:3000/${data.profilePicture}`
+                    : undefined;
+                data.profilePicture = profileImgUrl;
+                setUser(data);
+            } catch (error) {
+                console.error("Error fetching user info:", error);
+            }
+        };
+
+        fetchUserInfo();
+    }, [user_id]);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        navigate("/login");
+    };
+
     return (
         <header className="main">
             <div className="logo">
-                <img src="src/assets/logo2.png" alt="logo" />
-                <h1>Scholarships</h1>
+                <img src={oasisLogo} alt="Oasis Logo" />
+                <h1>Oasis</h1>
             </div>
             {user ? (
-                <div className="user">
-                    <Avatar
-                            src={user?.profilePicture}
-                            alt={user?.firstName}
-                            radius="xl"
-                            size="lg"
-                        />
+                <div className="user" style={{ display: 'flex', fontSize: '18px' }}>
+                    {user.profilePicture && <img src={user.profilePicture} alt={user.firstName} className="w-20 h-20 rounded-full" />}
                     <div>
-                        <p className='font-semibold'>{user?.firstName}</p>
-                        <button
-                            className="btn button"
-                            onClick={handleLogout}
-                        >
+                        <a href={`/settings/${user_id}`} className="font-semibold">
+                            {user.firstName} {user.lastName}
+                        </a>
+                        <br/>
+                        <button className="btn button" onClick={handleLogout}>
                             <LogOut />&nbsp;
                             Log Out
                         </button>
@@ -39,7 +70,7 @@ const Header = () => {
                 </div>
             ) : (
                 <div className="user">
-                    <button className="btn button connect">    
+                    <button className="btn button connect" onClick={() => navigate('/login')}>
                         Connect
                     </button>
                 </div>

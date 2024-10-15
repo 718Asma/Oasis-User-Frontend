@@ -6,12 +6,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "../ui/slider";
+// import { Slider } from "../ui/slider";
 
 import "../styles/FilterSideBar.css";
 import { Button } from "../ui/button";
 import { Scholarship } from "@/lib/types";
 import { DateInput } from "../ui/date-input";
+import { Slider } from "../ui/slider";
+import axios from "axios";
 
 
 interface FilterSideBarProps {
@@ -23,15 +25,16 @@ interface FilterSideBarProps {
 
 const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, setFiltered, applyFilters, closeSidebar }) => {
     const [locations, setLocations] = useState<string[]>([]);
+    const [order, setOrder] = useState<string>('none');
     const [location, setLocation] = useState<string>('');
     const [deadline, setDeadline] = useState<Date | null>(null);
-    const [provider, setProvider] = useState<string>('');
+    const [reward, setReward] = useState<number>(0);
+    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
         fetch('http://localhost:3000/scholarships/locations')
                 .then(response => response.json())
                 .then((data: string[]) => {
-                    console.log(data);
                     let locations: string[] = data;
                     const uniqueLocations = [...new Set(locations)];
                     setLocations(uniqueLocations);
@@ -39,33 +42,123 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                 .catch(error => {
                     console.error('Error fetching scholarships:', error);
                 });
-    });
+    }, []);
 
-    const handleFilters = () => {
-        console.log(filteredScholarships);
-        console.log(location, deadline, provider);
+    const handleFilters = async () => {
+        console.log(order, location, deadline, reward);
         let filteredList = [...filteredScholarships];
         console.log(filteredList);
 
         if(location != 'all' && location != '') {
-            filteredList = filteredList.filter(scholarship => scholarship.location == location);
+            try {
+                const response = await axios.get(`http://localhost:3000/scholarships/location/${location}`, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+                
+                console.log('Response: ', response.data);
+                filteredList = response.data;
+            } catch (error) {
+                console.error('Error fetching scholarships:', error);
+            }
         }
-        if(provider != 'all' && provider != '') {
-            filteredList = filteredList.filter(scholarship => scholarship.provider == provider);
+        if(reward != 0) {
+            filteredList = filteredList.filter(
+                (scholarship) => {
+                        console.log(scholarship.reward);
+                        if(scholarship.reward != 'Award Varies' && scholarship.reward != 'N/A') {
+                            if(scholarship.reward.includes('-'))
+                            {
+                                let rewardRange = scholarship.reward.split('-');
+                                let minReward = parseInt(rewardRange[0].replace(/[^0-9]/g, ''));
+                                let maxReward = parseInt(rewardRange[1].replace(/[^0-9]/g, ''));
+                                return reward >= minReward && reward <= maxReward;
+                            }
+                            else
+                            {
+                                let scholarshipReward = parseInt(scholarship.reward.replace(/[^0-9]/g, ''));
+                                return scholarshipReward == reward;
+                            }
+                        }
+                    return false;
+                }
+            );
         }
         if(deadline != null) {
-            filteredList = filteredList.filter(scholarship => {
-                const scholarshipDeadline = new Date(scholarship.deadline);
-                console.log('Scholarship Deadline: ' + scholarshipDeadline.toISOString());
-                console.log('Selected Deadline: ' + deadline.toISOString());
+            try {
+                if (!(deadline instanceof Date)) {
+                    throw new Error('Invalid Date');
+                }
+                
+                let date = deadline.toISOString().split('T')[0];
+                
+                const response = await axios.get(`http://localhost:3000/scholarships/deadline/${date}`, {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+            
+                console.log('Response:', response.data);
+                filteredList = response.data;
+                
+            } catch (error: any) {
+                // Handle 404 and 400 errors, or log others
+                if (error.response && error.response.status === 404) {
+                    console.error('No scholarships found with the specified deadline.');
+                } else if (error.response && error.response.status === 400) {
+                    console.error('Invalid date format. Use YYYY-MM-DD.');
+                } else if (error.message === 'Invalid Date') {
+                    console.error('Provided date is invalid.');
+                } else {
+                    console.error('Error fetching scholarships:', error);
+                }
+            }
+
+            // filteredList = filteredList.filter(scholarship => {
+            //     const scholarshipDeadline = new Date(scholarship.deadline);
     
-                return (
-                    scholarshipDeadline.getFullYear() === deadline.getFullYear() &&
-                    scholarshipDeadline.getMonth() === deadline.getMonth() &&
-                    scholarshipDeadline.getDate() === deadline.getDate()
-                );
-            });
-            console.log(filteredList);
+            //     return (
+            //         scholarshipDeadline.getFullYear() === deadline.getFullYear() &&
+            //         scholarshipDeadline.getMonth() === deadline.getMonth() &&
+            //         scholarshipDeadline.getDate() === deadline.getDate()
+            //     );
+            // });
+        }
+        if(order != 'none') {
+            switch(order) {
+                case 'newestDeadline':
+                    filteredList.sort((a, b) => {
+                        const dateA = new Date(a.deadline);
+                        const dateB = new Date(b.deadline);
+                        return dateA.getTime() - dateB.getTime();
+                    });
+                    console.log(filteredList);
+                    break;
+                case 'oldestDeadline':
+                    filteredList.sort((a, b) => {
+                        const dateA = new Date(a.deadline);
+                        const dateB = new Date(b.deadline);
+                        return dateB.getTime() - dateA.getTime();
+                    });
+                    console.log(filteredList);
+                    break;
+                    case 'highestReward':
+                        filteredList.sort((a, b) => {
+                            const rewardA = parseInt(a.reward.replace(/[^0-9]/g, '')) || 0;
+                            const rewardB = parseInt(b.reward.replace(/[^0-9]/g, '')) || 0;
+                            return rewardB - rewardA;
+                        });
+                        break;
+                    
+                    case 'lowestReward':
+                        filteredList.sort((a, b) => {
+                            const rewardA = parseInt(a.reward.replace(/[^0-9]/g, '')) || 0;
+                            const rewardB = parseInt(b.reward.replace(/[^0-9]/g, '')) || 0;
+                            return rewardA - rewardB;
+                        });
+                        break;
+            }
         }
 
         console.log(filteredList);
@@ -78,6 +171,24 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
         <div className="filter">
             <h2>Filter Scholarships</h2>
             <p>Adjust the filters to refine your scholarship search</p>
+            <div>
+                <h4>Sort</h4>
+                <Select
+                    value={order}
+                    onValueChange={setOrder}
+                >
+                    <SelectTrigger className="w-full md:w-[180px]">
+                        <SelectValue placeholder="Order By" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="newestDeadline">Deadline ↑ </SelectItem>
+                        <SelectItem value="oldestDeadline">Deadline ↓ </SelectItem>
+                        <SelectItem value="highestReward">Reward ↑ </SelectItem>
+                        <SelectItem value="lowestReward">Reward ↓ </SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <div>
                 <h5>Location</h5>
                 <Select
@@ -96,21 +207,19 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                     </Select>
             </div>
             <div>
-                <h5>Provider</h5>
-                <Select
-                        value={provider}
-                        onValueChange={setProvider}
-                    >
-                        <SelectTrigger className="w-full md:w-[180px]">
-                            <SelectValue placeholder="Filter by Provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="National Science Foundation">National Science Foundation</SelectItem>
-                            <SelectItem value="International Leadership Foundation">International Leadership Foundation</SelectItem>
-                            <SelectItem value="European Arts Council">European Arts Council</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <h5>Reward</h5>
+                <Slider
+                    variant="default"
+                    min={0}
+                    max={50000}
+                    step={1}
+                    value={reward}
+                    onChange={(e) => setReward(Number(e.target.value))}
+                />
+                <div className="values">
+                    <span className="text-sm text-gray-500">$0</span>
+                    <span className="text-sm text-gray-500">$50 000</span>
+                </div>
             </div>
             <div>
                 <h5>Deadline</h5>
@@ -122,53 +231,6 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                     }}
                 />
             </div>
-            {/*<div>
-                <h5>Country</h5>
-                <Select
-                        value={country}
-                        onValueChange={setCountry}
-                    >
-                        <SelectTrigger className="w-full md:w-[180px]">
-                            <SelectValue placeholder="Filter by Country" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="Global">Global</SelectItem>
-                            <SelectItem value="Various">Various</SelectItem>
-                            <SelectItem value="Germany">Germany</SelectItem>
-                        </SelectContent>
-                    </Select>
-            </div>
-            <div>
-                <h5>Minimum Age</h5>
-                    <Slider
-                        variant="default"
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={minAge}
-                        onChange={(e) => setMinAge(Number(e.target.value))}
-                    />
-                <div className="values">
-                    <span className="text-sm text-gray-500">0</span>
-                    <span className="text-sm text-gray-500">100</span>
-                </div>
-            </div>
-            <div>
-                <h5>Amount</h5>
-                    <Slider
-                        variant="default"
-                        min={0}
-                        max={10000}
-                        step={1}
-                        value={value}
-                        onChange={(e) => setValue(Number(e.target.value))}
-                    />
-                <div className="values">
-                    <span className="text-sm text-gray-500">$0</span>
-                    <span className="text-sm text-gray-500">$10,000+</span>
-                </div>
-            </div>*/}
             <div className="button">
                 <Button onClick={handleFilters}>Apply Filters</Button>
             </div>

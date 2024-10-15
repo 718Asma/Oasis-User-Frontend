@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
     Card,
     CardContent,
@@ -6,16 +5,18 @@ import {
     CardHeader,
     CardTitle,
 } from "../ui/card";
-import { Badge } from "../ui/badge";
+// import { Badge } from "../ui/badge";
 import {
     GraduationCap,
     MapPin,
     Star,
 } from "lucide-react";
-import { ScrollArea } from "../ui/scroll-area";
+// import { ScrollArea } from "../ui/scroll-area";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { Scholarship } from "@/lib/types";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface ScholarshipCardProps {
     scholarship: Scholarship;
@@ -23,10 +24,13 @@ interface ScholarshipCardProps {
 
 const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) => {
     const navigate = useNavigate();
+    const [favorites, setFavorites] = useState<string[]>([]);
     const [isFavorite, setIsFavorite] = useState<boolean>(false);
+    const userId = localStorage.getItem('userId') || null;
+    const access_token = localStorage.getItem("access_token");
 
     const handleDetails = () => {
-        navigate(`/scholarship/${scholarship.id}`);
+        navigate(`/scholarship/${scholarship._id}`);
     };
 
     const handleFavorite = async () => {
@@ -37,7 +41,7 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) =
         <Card className="hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="relative p-0">
                 <img
-                    src={scholarship.banner}
+                    src={scholarship.imageUrl}
                     alt={scholarship.title}
                     className="w-full h-32 object-cover rounded-t-lg"
                 />
@@ -46,31 +50,41 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) =
                 <CardTitle className="text-xl font-semibold mb-2">
                     {scholarship.title}
                 </CardTitle>
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {scholarship.location}
-                </div>
-                <div className="flex items-center text-sm text-gray-600 mb-2">
-                    <GraduationCap className="w-4 h-4 mr-1" />
-                    {scholarship.provider}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    {scholarship.location && scholarship.location != 'N/A' &&
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                            <MapPin className="w-4 h-4 mr-1" />
+                            {scholarship.location}
+                        </div>
+                    }
+                    {scholarship.criteria && scholarship.criteria.GPA &&
+                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                            <GraduationCap className="w-4 h-4 mr-1" />
+                            {scholarship.criteria.GPA}
+                        </div>
+                    }
                 </div>
             </CardContent>
+            <br />
             <CardFooter className="flex justify-between">
                 <Button
                     variant="outline"
-                    // className="flex-1 mr-2 hover:bg-green-100 hover:text-green-700"
                     onClick={handleDetails}
                 >
                     Check more details
                 </Button>
-                <Button
-                    variant="outline"
-                    style={{ border: "none" }}
-                    // className="flex-1 ml-2 hover:bg-red-100 hover:text-red-700"
-                    onClick={handleFavorite}
-                >
-                    <Star className="w-4 h-4 mr-2" />
-                </Button>
+                {userId === null && (
+                    <Button
+                        variant="outline"
+                        style={{ border: "none" }}
+                        onClick={handleFavorite}
+                    >
+                        {!isFavorite ?
+                            <Star className="w-4 h-4 mr-2" /> :
+                            <Star fill="black" className="w-4 h-4 mr-2" />
+                        }
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );
