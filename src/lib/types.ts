@@ -1,25 +1,38 @@
 export interface Student {
-    id: string;
-    profilePicture: string;
+    _id: string;
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
+    dateOfBirth: string;
+    gender: string;
     country: string;
-    dateOfBirth: Date;
-    levelOfEducation: string;
+    university: string;
+    courseOfStudy: string;
+    yearOfStudy: string;
+    levelOfStudy: string;
     fieldOfStudy: string;
+    isEligibleForNeedBasedScholarships: boolean;
+    isVerified: boolean;
+    profilePicture: string;
 }
 
 export interface Scholarship {
-    id: string;
+    _id: string;
     title: string;
     description: string;
-    eligibility: string;
-    deadline: Date;
+    reward: string;
+    amount: string;
+    deadline: string;
+    criteria: Criteria | null;
     location: string;
-    provider: string;
-    startDate: Date;
     imageUrl: string;
-    status: "approved";
+    url: string;
+    status: "Approved";
+}
+
+export interface Criteria {
+    Non_US?: string;
+    GPA?: string;
+    Accredited_University?: string;
+    Minimum_Age?: string;
 }
