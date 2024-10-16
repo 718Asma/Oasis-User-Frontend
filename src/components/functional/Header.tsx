@@ -55,8 +55,8 @@ const Header = () => {
                 <h1>Oasis</h1>
             </div>
             {user ? (
-                <div className="user" style={{ display: 'flex', fontSize: '18px' }}>
-                    {user.profilePicture && <img src={user.profilePicture} alt={user.firstName} className="w-20 h-20 rounded-full" />}
+                <div className="user" style={{ display: 'flex', fontSize: '16px' }}>
+                    {user.profilePicture && <img src={user.profilePicture} alt={user.firstName} className="w-16 h-16 rounded-full" style={{ marginRight: '0px' }} />}
                     <div>
                         <a href={`/settings/${user_id}`} className="font-semibold">
                             {user.firstName} {user.lastName}
