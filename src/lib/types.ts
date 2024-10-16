@@ -3,36 +3,27 @@ export interface Student {
     firstName: string;
     lastName: string;
     email: string;
+    profilePicture: string;
     dateOfBirth: string;
     gender: string;
     country: string;
     university: string;
     courseOfStudy: string;
-    yearOfStudy: string;
     levelOfStudy: string;
     fieldOfStudy: string;
-    isEligibleForNeedBasedScholarships: boolean;
     isVerified: boolean;
-    profilePicture: string;
 }
 
 export interface Scholarship {
     _id: string;
     title: string;
     description: string;
-    reward: string;
-    amount: string;
+    benefits: string[];
     deadline: string;
-    criteria: Criteria | null;
+    criteria: string[];
+    documents: string[];
     location: string;
-    imageUrl: string;
+    provider: string;
     url: string;
     status: "Approved";
-}
-
-export interface Criteria {
-    Non_US?: string;
-    GPA?: string;
-    Accredited_University?: string;
-    Minimum_Age?: string;
 }

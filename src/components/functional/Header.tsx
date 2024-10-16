@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Avatar } from '@mantine/core';
 import "../styles/Header.css";
 
 import { Student } from "@/lib/types";

@@ -21,7 +21,7 @@ export default function Home() {
 
     useEffect(() => {
         const fetchScholarships = async () => {
-            fetch("http://localhost:3000/scholarships")
+            fetch("http://localhost:3000/scholarships/")
                 .then((response) => response.json())
                 .then((data) => {
                     const scholarshipsData: Scholarship[] = data.map(
@@ -87,7 +87,7 @@ export default function Home() {
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
                     setScholarships([]);
-                    setNoResultsMessage("No scholarships found.");
+                    setNoResultsMessage("No scholarships found for the search term.");
                 } else {
                     console.error("Error searching scholarships:", error);
                     setNoResultsMessage("An error occurred while searching. Please try again.");
