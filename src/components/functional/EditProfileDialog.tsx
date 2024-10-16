@@ -53,10 +53,8 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
 			country: user?.country || "",
             university: user?.university || "",
             courseOfStudy: user?.courseOfStudy || "",
-            yearOfStudy: user?.yearOfStudy || "",
 			levelOfStudy: user?.levelOfStudy || "",
             fieldOfStudy: user?.fieldOfStudy || "",
-            isEligibleForNeedBasedScholarships: user?.isEligibleForNeedBasedScholarships ? "Yes" : "No",
         },
 		validationSchema,
         enableReinitialize: true,
@@ -69,10 +67,8 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
 				country: values.country,
                 university: values.university,
                 courseOfStudy: values.courseOfStudy,
-                yearOfStudy: values.yearOfStudy,
 				levelOfStudy: values.levelOfStudy,
                 fieldOfStudy: values.fieldOfStudy,
-                isEligibleForNeedBasedScholarships: values.isEligibleForNeedBasedScholarships === "Yes",
             };
 
 			console.log("Updated values:", updatedValues);
@@ -176,42 +172,12 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="levelOfStudy">Level of study</Label>
-                        <Select onValueChange={(value) => formik.setFieldValue("levelOfStudy", value)}>
-                            <SelectTrigger id="levelOfStudy">
-                                <SelectValue placeholder="Select level" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="undergraduate">Undergraduate</SelectItem>
-                                <SelectItem value="graduate">Graduate</SelectItem>
-                                <SelectItem value="postgraduate">Postgraduate</SelectItem>
-                                <SelectItem value="other">other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
                         <Label htmlFor="courseOfStudy">Course of study</Label>
                         <Input
                             id="courseOfStudy"
                             value={formik.values.courseOfStudy}
                             onChange={formik.handleChange}
                         />
-                    </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="yearOfStudy">Year of study</Label>
-                        <Select onValueChange={(value) => formik.setFieldValue("yearOfStudy", value)}>
-                            <SelectTrigger id="yearOfStudy">
-                                <SelectValue placeholder="Select year" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="1">1st Year</SelectItem>
-                                <SelectItem value="2">2nd Year</SelectItem>
-                                <SelectItem value="3">3rd Year</SelectItem>
-                                <SelectItem value="4">4th Year</SelectItem>
-                            </SelectContent>
-                        </Select>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="fieldOfStudy">Field of study</Label>
@@ -223,16 +189,18 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <Label>Eligible for Need-Based Scholarships?</Label>
-                    <RadioGroup
-                        name="isEligibleForNeedBasedScholarships"
-                        value={formik.values.isEligibleForNeedBasedScholarships}
-                        onChange={(value) => formik.setFieldValue("isEligibleForNeedBasedScholarships", value)}
-                        options={[
-                            { label: "Yes", value: "Yes" },
-                            { label: "No", value: "No" },
-                        ]}
-                    />
+                    <Label htmlFor="levelOfStudy">Level of study</Label>
+                    <Select onValueChange={(value) => formik.setFieldValue("levelOfStudy", value)}>
+                        <SelectTrigger id="levelOfStudy">
+                            <SelectValue placeholder="Select level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="undergraduate">Undergraduate</SelectItem>
+                            <SelectItem value="graduate">Graduate</SelectItem>
+                            <SelectItem value="postgraduate">Postgraduate</SelectItem>
+                            <SelectItem value="other">other</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
                 <Button type="submit" className="w-full">
                     Save Changes

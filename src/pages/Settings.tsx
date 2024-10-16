@@ -15,6 +15,7 @@ import {
     ChevronRight,
     ArrowLeft,
     User,
+	Pencil,
 } from "lucide-react";
 import { Student } from "@/lib/types";
 import { useNavigate, useParams } from "react-router-dom";
@@ -26,6 +27,7 @@ import { FileInput } from "@/components/ui/FileInput";
 export default function SettingsPage() {
     const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
+    const [file, setFile] = useState<File | null>(null);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isPasswordOpen, setIsPasswordOpen] = useState(false);

@@ -16,6 +16,8 @@ import ErrorPage from "./error-page.tsx";
 import ScholarshipPage from "./pages/Scholarship.tsx";
 import SignUp from "./pages/SignUp.tsx";
 import Login from "./pages/Login.tsx";
+import SettingsPage from "./pages/Settings.tsx";
+import PrivateRoute from "./auth/PrivateRoute.tsx";
 import { AuthProvider } from "./auth/AuthContext.tsx";
 
 const router = createBrowserRouter([
@@ -39,7 +41,15 @@ const router = createBrowserRouter([
     {
         path: "/signup",
         element: <SignUp />,
-    }
+    },
+    {
+        path: "/settings/:userId",
+        element: (
+            <PrivateRoute>
+                <SettingsPage />
+            </PrivateRoute>
+        ),
+    },
 ]);
 
 createRoot(document.getElementById("root")!).render(

@@ -1,19 +1,19 @@
 input[type='range']::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    background-color: #fff; /* Black thumb */
-    border: 3px solid #000; /* White border around the thumb */
-    border-radius: 50%;
-    cursor: pointer;
-  }
-  
-  input[type='range']::-moz-range-thumb {
-    width: 24px;
-    height: 24px;
-    background-color: #fff;
-    border: 2px solid #000;
-    border-radius: 50%;
-    cursor: pointer;
-  }
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  background-color: #fff; /* Black thumb */
+  border: 3px solid #000; /* White border around the thumb */
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
