@@ -14,6 +14,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Home from "./pages/Home.tsx";
 import ErrorPage from "./error-page.tsx";
 import ScholarshipPage from "./pages/Scholarship.tsx";
+import SignUp from "./pages/SignUp.tsx";
+import Login from "./pages/Login.tsx";
+import { AuthProvider } from "./auth/AuthContext.tsx";
 
 const router = createBrowserRouter([
     {
@@ -29,13 +32,23 @@ const router = createBrowserRouter([
         path: "/scholarship/:scholarshipId",
         element: <ScholarshipPage />,
     },
+    {
+        path: "/login",
+        element: <Login />,
+    },
+    {
+        path: "/signup",
+        element: <SignUp />,
+    }
 ]);
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <MantineProvider>
+                <AuthProvider>
                     <RouterProvider router={router} />
+                </AuthProvider>
             </MantineProvider>
         </ThemeProvider>
     </StrictMode>
