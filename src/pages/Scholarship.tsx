@@ -40,7 +40,7 @@ const ScholarshipPage = () => {
     }, [scholarshipId]);
     
     return (
-        <div>
+        <div className="bg-background dark:bg-dark-background">
             <Header />
             {
                 scholarship ? (
@@ -104,13 +104,6 @@ const ScholarshipPage = () => {
                                 </div>
                                 <p style={{ color: 'red' }}>{scholarship.deadline}</p>
                             </div>
-                            {/* <div style={{ display: 'flex', justifyContent:'space-between', marginTop: '5vh' }}>
-                                <div style={{ display: 'flex', color: 'grey' }}>
-                                    <Calendar size={20} />&nbsp;
-                                    <p>Program Start Date</p>
-                                </div>
-                                <p style={{ color: 'black' }}>{scholarship.deadline}</p>
-                            </div> */}
                         </Card>
                         <center>
                             <a
@@ -125,8 +118,6 @@ const ScholarshipPage = () => {
                 ) : (
                     <div style={{ display: 'flex', marginLeft: '50%' }}>
                           <LoadingOutlined style={{ fontSize: '5rem', color: '#2b79c2' }} />
-
-                        {/* <p>Loading...</p> */}
                     </div>
                 )
             }

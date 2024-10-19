@@ -24,53 +24,71 @@ interface ScholarshipCardProps {
 
 const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) => {
     const navigate = useNavigate();
-    const [favorites, setFavorites] = useState<string[]>([]);
     const [isFavorite, setIsFavorite] = useState<boolean>(false);
-    const userId = localStorage.getItem('userId') || null;
+    const userId = localStorage.getItem('user_id') || null;
     const access_token = localStorage.getItem("access_token");
 
     const handleDetails = () => {
         navigate(`/scholarship/${scholarship._id}`);
     };
 
-    const getFavorites = async () => {
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            if (userId === null) {
+                return;
+            }
+            try {
+                const response = await axios.get('http://localhost:3000/users/favorites', {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+
+                if (response.data.includes(scholarship._id)) {
+                    setIsFavorite(true);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchFavorites();
+    }, [scholarship, userId]);
+
+    const handleFavorite = async () => {
+        if (isFavorite) {
+            removeFavorite();
+        } else {
+            addFavorite();
+        }
+    };
+
+    const addFavorite = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/users/favorites', {
+            const response = await axios.post(`http://localhost:3000/users/add-favorite`, {scholarshipId: scholarship._id}, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`,
                 },
             });
-            setFavorites(response.data);
+            console.log('Success', response.data);
+            setIsFavorite(true);
         } catch (error) {
             console.error(error);
         }
     };
 
-    useEffect(() => {
-        getFavorites();
-        if (favorites.includes(scholarship._id)) {
-            setIsFavorite(true);
+    const removeFavorite = async () => {
+        try {
+            const response = await axios.post(`http://localhost:3000/users/remove-favorite`, {scholarshipId: scholarship._id}, {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                },
+            });
+            console.log('Success', response.data);
+            setIsFavorite(false);
+        } catch (error) {
+            console.error(error);
         }
-    }, [scholarship, userId]);
-
-    const handleFavorite = async () => {
-        if (localStorage.getItem('userId') === null || localStorage.getItem('access_token') === null) {
-            navigate('/login');
-            return;
-        } else{
-            try {
-                const response = await axios.post(`http://localhost:3000/users/add-favorite`, {scholarshipId: scholarship._id}, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                    },
-                });
-                console.log('Success', response.data);
-                setIsFavorite(!isFavorite);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        
     };
 
     return (
@@ -88,19 +106,19 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) =
                 </CardTitle>
                 <div>
                     {scholarship.location && scholarship.location != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <MapPin className="w-4 h-4 mr-1" />
                             {scholarship.location}
                         </div>
                     }
                     {scholarship.provider && scholarship.provider != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <School className="w-4 h-4 mr-1" />
                             {scholarship.provider}
                         </div>
                     }
                     {scholarship.deadline && scholarship.deadline != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <Clock className="w-4 h-4 mr-1" />
                             {scholarship.deadline}
                         </div>
@@ -111,24 +129,20 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) =
             <CardFooter className="flex justify-between">
                 <Button
                     variant="outline"
-                    // className="flex-1 mr-2 hover:bg-green-100 hover:text-green-700"
                     onClick={handleDetails}
                 >
                     Check more details
                 </Button>
-                {userId === null && (
-                    <Button
-                        variant="outline"
-                        style={{ border: "none" }}
-                        // className="flex-1 ml-2 hover:bg-red-100 hover:text-red-700"
-                        onClick={handleFavorite}
-                    >
-                        {!isFavorite ?
-                            <Star className="w-4 h-4 mr-2" /> :
-                            <Star fill="black" className="w-4 h-4 mr-2" />
-                        }
-                    </Button>
-                )}
+                {userId !== null && <Button
+                    variant="outline"
+                    style={{ border: "none" }}
+                    onClick={handleFavorite}
+                >
+                    {!isFavorite ?
+                        <Star className="w-4 h-4 mr-2" /> :
+                        <Star fill="black" className="w-4 h-4 mr-2" />
+                    }
+                </Button>}
             </CardFooter>
         </Card>
     );

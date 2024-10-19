@@ -69,7 +69,7 @@ export default function SignUp() {
 	});
 
 	return (
-		<div className="flex min-h-screen">
+		<div className="flex min-h-screen bg-background dark:bg-dark-background">
 			<div
 				className="w-full max-w-md p-8 space-y-6"
 				style={{ marginTop: "auto", marginBottom: "auto" }}
@@ -82,7 +82,7 @@ export default function SignUp() {
 					Enter your information to create an account
 				</p>
 				</div>
-				<form onSubmit={formik.handleSubmit} className="space-y-4">
+				<form onSubmit={formik.handleSubmit} className="space-y-4 dark:text-white">
 				<div>
 					<div>
 						<Label htmlFor="email">Email</Label>
@@ -154,14 +154,14 @@ export default function SignUp() {
 					Create an account
 				</Button>
 				</form>
-				<p className="text-sm text-center">
-				Already have an account?{" "}
-				<a
-					href="/login"
-					className="font-medium text-indigo-600 hover:text-indigo-500"
-				>
-					Log in
-				</a>
+				<p className="text-sm text-center dark:text-gray-300">
+					Already have an account?{" "}
+					<a
+						href="/login"
+						className="font-medium text-indigo-600 hover:text-indigo-500"
+					>
+						Log in
+					</a>
 				</p>
 			</div>
 			<div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-gray-100">

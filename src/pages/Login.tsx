@@ -55,13 +55,13 @@ export default function Login() {
     });
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-background dark:bg-dark-background">
             <div className="w-full max-w-md p-8 space-y-6" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
                 <div className="space-y-2">
                     <h1 className="text-5xl font-bold">Log In</h1>
                     <p className="text-sm text-gray-500">Enter your email below to login to your account</p>
                 </div>
-                <form onSubmit={formik.handleSubmit} className="space-y-4">
+                <form onSubmit={formik.handleSubmit} className="space-y-4 dark:text-white">
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -92,7 +92,7 @@ export default function Login() {
                     </div>
                     <Button className="w-full" type="submit">Log In</Button>
                 </form>
-                <p className="text-sm text-center">
+                <p className="text-sm text-center dark:text-gray-300">
                     Don't have an account? <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">Sign Up</a>
                 </p>
             </div>

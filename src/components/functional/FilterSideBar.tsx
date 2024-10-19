@@ -11,7 +11,8 @@ import "../styles/FilterSideBar.css";
 import { Button } from "../ui/button";
 import { Scholarship } from "@/lib/types";
 import { DateInput } from "../ui/date-input";
-import { Slider } from "../ui/slider";
+import { Checkbox } from "../ui/checkbox";
+import axios from "axios";
 
 
 interface FilterSideBarProps {
@@ -25,21 +26,30 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
     const [locations, setLocations] = useState<string[]>([]);
     const [location, setLocation] = useState<string>('');
     const [deadline, setDeadline] = useState<Date | null>(null);
+    const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
+    const user_id = localStorage.getItem('user_id') || null;
+    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
-        fetch('http://localhost:3000/scholarships/locations')
-                .then(response => response.json())
-                .then((data: string[]) => {
-                    let locations: string[] = data;
-                    const uniqueLocations = [...new Set(locations)];
-                    setLocations(uniqueLocations);
-                })
-                .catch(error => {
-                    console.error('Error fetching scholarships:', error);
-                });
+        const fetchLocations = async () => {
+            try {
+            const response = await axios.get('http://localhost:3000/scholarships/locations', {
+                headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                },
+            });
+            const data: string[] = response.data;
+            const uniqueLocations = [...new Set(data)];
+            setLocations(uniqueLocations);
+            } catch (error) {
+            console.error('Error fetching scholarships:', error);
+            }
+        };
+
+        fetchLocations();
     }, []);
 
-    const handleFilters = () => {
+    const handleFilters = async () => {
         console.log(location, deadline);
         let filteredList = [...filteredScholarships];
         console.log(filteredList);
@@ -59,6 +69,19 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
                 );
             });
         }
+        if(favoritesOnly) {
+            try{
+                const response = await axios.get('http://localhost:3000/users/favorites', {
+                    headers: {
+                        'Authorization': `Bearer ${access_token}`,
+                    },
+                });
+                console.log(response.data);
+                filteredList = filteredList.filter(scholarship => response.data.includes(scholarship._id));
+            }catch(error) {
+                console.error('Error fetching favorites:', error);
+            }
+        }
 
         console.log(filteredList);
         applyFilters(filteredList);
@@ -67,41 +90,46 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({ filteredScholarships, set
     };
 
     return(
-        <div className="filter">
-            <h2>Filter Scholarships</h2>
-            <p>Adjust the filters to refine your scholarship search</p>
-            <div>
-                <h5>Location</h5>
-                <Select
-                        value={location}
-                        onValueChange={setLocation}
-                    >
-                        <SelectTrigger className="w-full md:w-[180px]">
-                            <SelectValue placeholder="Filter by Location" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            {locations.map(location => (
-                                <SelectItem value={location}>{location}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-            </div>
-            <div>
-                <h5>Deadline</h5>
-                <DateInput
-                    value={deadline}
-                    onChange={(e) => {
-                        const { value } = e.target;
-                        setDeadline(value ? new Date(value) : null);
-                    }}
-                />
-            </div>
-            <div className="button">
-                <Button onClick={handleFilters}>Apply Filters</Button>
+        <div className="min-h-screen w-full text-black bg-background dark:bg-dark-background">
+            <div className="filter dark:text-white">
+                <h2>Filter Scholarships</h2>
+                <p>Adjust the filters to refine your scholarship search</p>
+                <div className="bg-background dark:bg-dark-background">
+                    <h5>Location</h5>
+                    <Select
+                            value={location}
+                            onValueChange={setLocation}
+                        >
+                            <SelectTrigger className="w-full md:w-[180px]">
+                                <SelectValue placeholder="Filter by Location" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All</SelectItem>
+                                {locations.map(location => (
+                                    <SelectItem value={location}>{location}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                </div>
+                <div className="bg-background dark:bg-dark-background">
+                    <h5>Deadline</h5>
+                    <DateInput
+                        value={deadline}
+                        onChange={(e) => {
+                            const { value } = e.target;
+                            setDeadline(value ? new Date(value) : null);
+                        }}
+                    />
+                </div>
+                {user_id !== null && <div style={{ display: 'flex', marginTop: '1.5rem' }}>
+                    <Checkbox onChange={(e) => {setFavoritesOnly(e.target.checked); console.log(favoritesOnly)}} />
+                    <span>Display Favorites Only</span>
+                </div>}
+                <div className="button bg-background dark:bg-dark-background">
+                    <Button onClick={handleFilters} className="dark:text-white">Apply Filters</Button>
+                </div>
             </div>
         </div>
-
     );
 };
 
