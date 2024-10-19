@@ -4,10 +4,10 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { RadioGroup } from "@/components/ui/radiogroup";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from "axios";
 import { Student } from "@/lib/types";
+import { DateInput } from "../ui/date-input";
 
 const validationSchema = Yup.object({
     firstName: Yup.string()
@@ -48,7 +48,7 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
         initialValues: {
             firstName: user?.firstName,
             lastName: user?.lastName,
-            dateOfBirth: user?.dateOfBirth || "",
+            dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth) : "",
             gender: user?.gender || "",
 			country: user?.country || "",
             university: user?.university || "",
@@ -101,7 +101,7 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                 Edit Profile
             </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] dark:text-white">
             <DialogHeader>
                 <DialogTitle>Edit Profile</DialogTitle>
             </DialogHeader>
@@ -134,16 +134,16 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="dateOfBirth">Date of birth</Label>
-                    <Input
+                    <DateInput
                         id="dateOfBirth"
                         type="date"
-                        value={formik.values.dateOfBirth}
+                        value={formik.values.dateOfBirth ? new Date(formik.values.dateOfBirth) : null}
                         onChange={formik.handleChange}
                     />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="gender">Gender</Label>
-                    <Select onValueChange={(value) => formik.setFieldValue("gender", value)}>
+                    <Select value={formik.values.gender} onValueChange={(value) => formik.setFieldValue("gender", value)}>
                         <SelectTrigger id="gender">
                             <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
@@ -190,7 +190,7 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="levelOfStudy">Level of study</Label>
-                    <Select onValueChange={(value) => formik.setFieldValue("levelOfStudy", value)}>
+                    <Select value={formik.values.levelOfStudy} onValueChange={(value) => formik.setFieldValue("levelOfStudy", value)}>
                         <SelectTrigger id="levelOfStudy">
                             <SelectValue placeholder="Select level" />
                         </SelectTrigger>
@@ -202,7 +202,7 @@ export default function EditProfileDialog({ isEditProfileOpen, setIsEditProfileO
                         </SelectContent>
                     </Select>
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full dark:text-white">
                     Save Changes
                 </Button>
             </form>

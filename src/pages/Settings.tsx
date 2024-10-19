@@ -15,7 +15,6 @@ import {
     ChevronRight,
     ArrowLeft,
     User,
-	Pencil,
 } from "lucide-react";
 import { Student } from "@/lib/types";
 import { useNavigate, useParams } from "react-router-dom";
@@ -27,7 +26,6 @@ import { FileInput } from "@/components/ui/FileInput";
 export default function SettingsPage() {
     const { userId } = useParams<{ userId: string }>();
     const navigate = useNavigate();
-    const [file, setFile] = useState<File | null>(null);
     const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isPasswordOpen, setIsPasswordOpen] = useState(false);
@@ -97,7 +95,7 @@ export default function SettingsPage() {
 
         if (file != null) {
             const formData = new FormData();
-            formData.append("profileImage", file); // Use "profileImage" as field name
+            formData.append("profileImage", file);
 
             try {
                 const response = await axios.post("http://localhost:3000/users/update-avatar", formData, {
@@ -107,7 +105,7 @@ export default function SettingsPage() {
                     },
                 });
                 console.log("Response:", response.data);
-                fetchUser(); // Refresh user info after upload
+                fetchUser();
             } catch (error) {
                 console.error("Error uploading file:", error);
             }
@@ -117,135 +115,133 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h1 className="text-5xl font-bold mb-8">Settings</h1>
-                <div
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                    <ArrowLeft style={{ color: "#2b79c2" }} />
-                    &nbsp;
-                    <a href="/home" style={{ color: "#2b79c2" }}>
+        <div className="min-h-screen w-full bg-background dark:bg-dark-background">
+            <div className="container mx-auto px-4 py-8 max-w-4xl">
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h1 className="text-5xl font-bold mb-8">Settings</h1>
+                    <a href="/home" style={{ color: "#2b79c2", display: "flex", justifyContent: "space-between"  }}>
+                        <ArrowLeft style={{ color: "#2b79c2" }} />
+                        &nbsp;
                         Go Back to the Home Page
                     </a>
                 </div>
-            </div>
-            <div className="grid gap-8 md:grid-cols-3">
-				<Card className="md:col-span-1">
-					<CardHeader>
-						<CardTitle>User Info</CardTitle>
-					</CardHeader>
-					<CardContent className="flex flex-col items-center text-center relative">
-						<div className="relative">
-							{user?.profilePicture ? (
-								<img src={user.profilePicture} alt={user.firstName} className="w-48 h-48 mb-2 rounded-full" />
-							) : (
-								<User className="w-48 h-48 mb-2 rounded-full" />
-							)}
-							
-                            <FileInput
-                                className="absolute top-0 right-0 w-12 h-12 z-10"
-                                onChange={handleFileChange} // Handle file change directly here
+                <div className="grid gap-8 md:grid-cols-3">
+                    <Card className="md:col-span-1">
+                        <CardHeader>
+                            <CardTitle>User Info</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center text-center relative">
+                            <div className="relative">
+                                {user?.profilePicture ? (
+                                    <img src={user.profilePicture} alt={user.firstName} className="w-48 h-48 mb-2 rounded-full" />
+                                ) : (
+                                    <User className="w-48 h-48 mb-2 rounded-full" />
+                                )}
+                                
+                                <FileInput
+                                    className="absolute top-0 right-0 w-12 h-12 z-10"
+                                    onChange={handleFileChange}
+                                />
+                            </div>
+                            <h2 className="text-2xl font-semibold mb-2">
+                                {user?.firstName} {user?.lastName}
+                            </h2>
+                            <p className="text-muted-foreground mb-1">
+                                {user?.email}
+                            </p>
+                            <EditProfileDialog
+                                isEditProfileOpen={isEditProfileOpen}
+                                setIsEditProfileOpen={setIsEditProfileOpen}
+                                user={user}
                             />
-						</div>
-						<h2 className="text-2xl font-semibold mb-2">
-							{user?.firstName} {user?.lastName}
-						</h2>
-						<p className="text-muted-foreground mb-1">
-							{user?.email}
-						</p>
-						<EditProfileDialog
-							isEditProfileOpen={isEditProfileOpen}
-							setIsEditProfileOpen={setIsEditProfileOpen}
-							user={user}
-						/>
-					</CardContent>
-				</Card>
-                <Card className="md:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Account Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <UpdatePasswordDialog
-                            isPasswordOpen={isPasswordOpen}
-                            setIsPasswordOpen={setIsPasswordOpen}
-                        />
-                        {!user?.isVerified && (
-                            <Button
-                                variant="outline"
-                                className="w-full justify-between text-left"
-                                onClick={handleVerify}
-                            >
-                                <a
-                                    style={{
-                                        color: "black",
-                                        textDecoration: "none",
-                                    }}
-                                    className="flex items-center gap-2"
-                                >
-                                    <ShieldCheck className="w-4 h-4" />
-                                    Verify Account
-                                </a>
-                                <ChevronRight className="w-4 h-4" />
-                            </Button>
-                        )}
-                        <Dialog
-                            open={isDeleteOpen}
-                            onOpenChange={setIsDeleteOpen}
-                        >
-                            <DialogTrigger asChild>
+                        </CardContent>
+                    </Card>
+                    <Card className="md:col-span-2">
+                        <CardHeader>
+                            <CardTitle>Account Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <UpdatePasswordDialog
+                                isPasswordOpen={isPasswordOpen}
+                                setIsPasswordOpen={setIsPasswordOpen}
+                            />
+                            {!user?.isVerified && (
                                 <Button
                                     variant="outline"
-                                    className="w-full justify-between text-left text-destructive"
+                                    className="w-full justify-between text-left"
+                                    onClick={handleVerify}
                                 >
-                                    <span className="flex items-center gap-2">
-                                        <Trash2 className="w-4 h-4" />
-                                        Delete Account
-                                    </span>
+                                    <a
+                                        style={{
+                                            color: "black",
+                                            textDecoration: "none",
+                                        }}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <ShieldCheck className="w-4 h-4" />
+                                        Verify Account
+                                    </a>
                                     <ChevronRight className="w-4 h-4" />
                                 </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>Delete Account</DialogTitle>
-                                </DialogHeader>
-                                <p className="text-muted-foreground">
-                                    Are you sure you want to delete your
-                                    account? This action cannot be undone.
-                                </p>
-                                <div className="flex justify-end gap-4 mt-4">
+                            )}
+                            <Dialog
+                                open={isDeleteOpen}
+                                onOpenChange={setIsDeleteOpen}
+                            >
+                                <DialogTrigger asChild>
                                     <Button
                                         variant="outline"
-                                        onClick={() => setIsDeleteOpen(false)}
+                                        className="w-full justify-between text-left text-destructive"
                                     >
-                                        Cancel
+                                        <span className="flex items-center gap-2">
+                                            <Trash2 className="w-4 h-4" />
+                                            Delete Account
+                                        </span>
+                                        <ChevronRight className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            handleDelete();
-                                            setIsDeleteOpen(false);
-                                        }}
-                                        className="text-destructive"
-                                    >
-                                        Delete Account
-                                    </Button>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                        <Button
-                            variant="outline"
-                            onClick={handleLogout}
-                            className="w-full justify-between text-left"
-                        >
-                            <span className="flex items-center gap-2">
-                                <LogOut className="w-4 h-4" />
-                                Log Out
-                            </span>
-                            <ChevronRight className="w-4 h-4" />
-                        </Button>
-                    </CardContent>
-                </Card>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Delete Account</DialogTitle>
+                                    </DialogHeader>
+                                    <p className="text-muted-foreground">
+                                        Are you sure you want to delete your
+                                        account? This action cannot be undone.
+                                    </p>
+                                    <div className="flex justify-end gap-4 mt-4">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setIsDeleteOpen(false)}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => {
+                                                handleDelete();
+                                                setIsDeleteOpen(false);
+                                            }}
+                                            className="text-destructive"
+                                        >
+                                            Delete Account
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                            <Button
+                                variant="outline"
+                                onClick={handleLogout}
+                                className="w-full justify-between text-left"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <LogOut className="w-4 h-4" />
+                                    Log Out
+                                </span>
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );
