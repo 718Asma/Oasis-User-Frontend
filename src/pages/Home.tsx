@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 import { Scholarship } from "@/lib/types";
+import { getScholarships, searchScholarshipsByName } from '../services/scholarshipService';
+
 import ScholarshipComponent from "@/components/functional/ScholarshipCard";
+import FilterSideBar from "@/components/functional/FilterSideBar";
 import Header from "@/components/functional/Header";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 import { Menu, Search, X } from "lucide-react";
-import FilterSideBar from "@/components/functional/FilterSideBar";
-import axios from "axios";
+
 
 export default function Home() {
     const [allScholarships, setAllScholarships] = useState<Scholarship[]>([]);
@@ -17,20 +20,15 @@ export default function Home() {
     const [opened, setOpened] = useState<boolean>(false);
     const [searched, setSearched] = useState<boolean>(false);
     const [filtered, setFiltered] = useState<boolean>(false);
-    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
         const fetchScholarships = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/scholarships/", {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                    },
-                });
+                const data = await getScholarships();
     
-                console.log("Scholarships:", response.data);
-                setAllScholarships(response.data);
-                setScholarships(response.data);
+                console.log("Scholarships:", data);
+                setAllScholarships(data);
+                setScholarships(data);
             } catch (error) {
                 console.error("Error fetching scholarships:", error);
             }
@@ -51,15 +49,9 @@ export default function Home() {
         if (searchTerm.trim()) {
             setSearched(true);
             try {
-                const response = await axios.get(
-                    `http://localhost:3000/scholarships/search?name=${searchTerm}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`,
-                        },
-                    }
-                );
-                setScholarships(response.data);
+                const data = await searchScholarshipsByName(searchTerm);
+
+                setScholarships(data);
                 setNoResultsMessage('');
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
@@ -91,7 +83,7 @@ export default function Home() {
                         <div className="relative">
                             <Input
                                 placeholder="Search scholarships..."
-                                className="pl-8 text-black dark: text-white"
+                                className="pl-8 dark:text-white"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

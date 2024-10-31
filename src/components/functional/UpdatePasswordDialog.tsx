@@ -1,5 +1,8 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+
+import { changePassword } from "@/services/userService";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +13,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Lock, ChevronRight } from "lucide-react";
-import axios from "axios";
 
 const validationSchema = Yup.object({
     oldPassword: Yup.string().required("Current password is required"),
@@ -37,7 +40,6 @@ export default function UpdatePasswordDialog({
     isPasswordOpen,
     setIsPasswordOpen,
 }: UpdatePasswordDialogProps) {
-    const access_token = localStorage.getItem("access_token");
     const formik = useFormik({
         initialValues: {
             oldPassword: "",
@@ -53,15 +55,7 @@ export default function UpdatePasswordDialog({
             };
             console.log("Updated values:", updatedValues);
             try {
-                const response = await axios.post(
-                    `http://localhost:3000/users/change-password`,
-                    updatedValues,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${access_token}`,
-                        },
-                    }
-                );
+                const response = await changePassword(updatedValues);
                 console.log("Response:", response);
                 setIsPasswordOpen(false);
             } catch (error) {

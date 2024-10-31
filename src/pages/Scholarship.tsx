@@ -1,11 +1,14 @@
-import Header from "@/components/functional/Header";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { Scholarship } from "@/lib/types";
+import { getScholarshipById } from '../services/scholarshipService';
+
+import Header from "@/components/functional/Header";
 import { Card } from "@/components/ui/card";
+
 import { ArrowLeft, Clock } from "lucide-react";
 import { LoadingOutlined } from "@ant-design/icons";
-import axios from "axios";
 
 
 const ScholarshipPage = () => {
@@ -26,9 +29,9 @@ const ScholarshipPage = () => {
     
         try
         {
-            const response = await axios.get(`http://localhost:3000/scholarships/id/${scholarshipId}`);
-            console.log("Response:", response);
-            setScholarship(response.data);
+            const data = await getScholarshipById(scholarshipId);
+            console.log("Response:", data);
+            setScholarship(data);
     
         } catch (error) {
             console.error('Error fetching scholarship:', error);

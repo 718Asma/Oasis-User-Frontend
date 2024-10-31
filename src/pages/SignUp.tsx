@@ -1,13 +1,16 @@
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+import { AuthContext } from "../auth/AuthContext";
+import { signup } from "@/services/authService";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
-import { AuthContext } from "../auth/AuthContext";
-import { useContext } from "react";
 
 import oasisBanner from '@/assets/oasisBanner.png';
 
@@ -49,14 +52,9 @@ export default function SignUp() {
 		onSubmit: async (values) => {
 			try {
 				console.log("Signing in with values:", values);
-                const { data } = await axios.post(
-                    "http://localhost:3000/auth/signup",
-                    values,
-                    {
-                        withCredentials: true, // Important for cookies (including refresh_token)
-                    }
-                );
+                const { data } = await signup(values);
                 console.log("Sign-up response:", data);
+
                 localStorage.setItem("user_id", data.user_id);
                 localStorage.setItem("access_token", data.access_token);
                 setAccessToken(data.access_token);

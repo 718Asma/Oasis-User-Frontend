@@ -25,7 +25,6 @@ export function AccountDropdown() {
                 'Authorization': `Bearer ${access_token}`,
             },
         });
-        console.log("User info:", response.data.profilePicture);
         const profileImgUrl = response.data.profilePicture 
             ? `http://localhost:3000/${response.data.profilePicture}`
             : undefined;
