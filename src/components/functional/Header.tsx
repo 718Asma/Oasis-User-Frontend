@@ -1,24 +1,24 @@
 import { useEffect, useState } from 'react';
-import "../styles/Header.css";
+import { useNavigate } from 'react-router-dom';
 
 import { Student } from "@/lib/types";
-import { LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getUserById } from "@/services/userService";
+
+import { useTheme } from '@/components/theme-provider';
+import { ModeToggle } from '@/components/mode-toggle';
+import { AccountDropdown } from '@/components/account';
+
+import { Button } from '@/components/ui/button';
+import "../styles/Header.css";
 
 import oasisLogo from '@/assets/oasis2.png';
 import oasisDarkLogo from '@/assets/oasisDark.png';
-import { useTheme } from '../theme-provider';
-import { Button } from '../ui/button';
-import { ModeToggle } from '../mode-toggle';
-import { AccountDropdown } from '../account';
 
 const Header = () => {
     const { theme } = useTheme();
     const navigate = useNavigate();
     const [user, setUser] = useState<Student | null>(null);
     const user_id = localStorage.getItem("user_id");
-    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -28,11 +28,7 @@ const Header = () => {
             }
 
             try {
-                const { data } = await axios.get(`http://localhost:3000/users/id/${user_id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                    },
-                });
+                const { data } = await getUserById(user_id);
                 console.log("User info:", data);
                 const profileImgUrl = data.profilePicture 
                     ? `http://localhost:3000/${data.profilePicture}`
@@ -46,13 +42,6 @@ const Header = () => {
 
         fetchUserInfo();
     }, [user_id]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
-    };
 
     return (
         <header className="main">

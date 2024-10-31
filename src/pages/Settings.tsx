@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { Student } from "@/lib/types";
+import { deleteUser, getProfile, updateAvatar } from "../services/userService";
+import { logout, resendVerificationEmail } from "@/services/authService";
+
 import { Button } from "@/components/ui/button";
+import UpdatePasswordDialog from "@/components/functional/UpdatePasswordDialog";
+import EditProfileDialog from "@/components/functional/EditProfileDialog";
+import { FileInput } from "@/components/ui/FileInput";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Dialog,
@@ -16,12 +25,6 @@ import {
     ArrowLeft,
     User,
 } from "lucide-react";
-import { Student } from "@/lib/types";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
-import UpdatePasswordDialog from "@/components/functional/UpdatePasswordDialog";
-import EditProfileDialog from "@/components/functional/EditProfileDialog";
-import { FileInput } from "@/components/ui/FileInput";
 
 export default function SettingsPage() {
     const { userId } = useParams<{ userId: string }>();
@@ -30,25 +33,17 @@ export default function SettingsPage() {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isPasswordOpen, setIsPasswordOpen] = useState(false);
     const [user, setUser] = useState<Student>();
-    const access_token = localStorage.getItem("access_token");
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:3000/users/profile`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${access_token}`,
-                    },
-                }
-            );
-			const profileImgUrl = response.data.profilePicture 
-				? `http://localhost:3000/${response.data.profilePicture}`
-				: undefined;
+            const data = await getProfile();
+            const profileImgUrl = data.profilePicture
+                ? `http://localhost:3000/${data.profilePicture}`
+                : undefined;
 
-			response.data.profilePicture = profileImgUrl;
-            console.log("Response:", response.data);
-            setUser(response.data);
+            data.profilePicture = profileImgUrl;
+            console.log("Response:", data);
+            setUser(data);
         } catch (error) {
             console.error("Error fetching user:", error);
         }
@@ -58,52 +53,52 @@ export default function SettingsPage() {
         fetchUser();
     }, [userId]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            const data = await logout();
+            console.log("Response:", data);
+
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+
+            navigate("/login");
+        } catch (error) {
+            console.error("Error logging out:", error);
+        }
     };
 
     const handleDelete = async () => {
         try {
-            const response = await axios.post(
-                `http://localhost:3000/users/delete`
-            );
-            console.log("Response:", response);
-            handleLogout();
+            const data = await deleteUser();
+            console.log("Response:", data);
+            await handleLogout();
         } catch (error) {
             console.error("Error deleting account:", error);
         }
     };
 
     const handleVerify = async () => {
-        try {
-            const response = await axios.post(
-                `http://localhost:3000/auth/resend-verification-email`
-            );
-            console.log("Response:", response);
-            alert("Account verification email sent successfully!");
-            fetchUser();
-        } catch (error) {
-            console.error("Error verifying account:", error);
+        if (user) {
+            try {
+                const response = await resendVerificationEmail(user.email);
+                console.log("Response:", response);
+                alert("Account verification email sent successfully!");
+                fetchUser();
+            } catch (error) {
+                console.error("Error verifying account:", error);
+            }
         }
     };
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const file = event.target.files?.[0] || null;
 
         if (file != null) {
-            const formData = new FormData();
-            formData.append("profileImage", file);
-
             try {
-                const response = await axios.post("http://localhost:3000/users/update-avatar", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: `Bearer ${access_token}`,
-                    },
-                });
+                const response = await updateAvatar(file);
                 console.log("Response:", response.data);
                 fetchUser();
             } catch (error) {
@@ -117,12 +112,20 @@ export default function SettingsPage() {
     return (
         <div className="min-h-screen w-full bg-background dark:bg-dark-background">
             <div className="container mx-auto px-4 py-8 max-w-4xl">
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                >
                     <h1 className="text-5xl font-bold mb-8">Settings</h1>
-                    <a href="/home" style={{ color: "#2b79c2", display: "flex", justifyContent: "space-between"  }}>
+                    <a
+                        href="/home"
+                        style={{
+                            color: "#2b79c2",
+                            display: "flex",
+                            justifyContent: "space-between",
+                        }}
+                    >
                         <ArrowLeft style={{ color: "#2b79c2" }} />
-                        &nbsp;
-                        Go Back to the Home Page
+                        &nbsp; Go Back to the Home Page
                     </a>
                 </div>
                 <div className="grid gap-8 md:grid-cols-3">
@@ -133,11 +136,15 @@ export default function SettingsPage() {
                         <CardContent className="flex flex-col items-center text-center relative">
                             <div className="relative">
                                 {user?.profilePicture ? (
-                                    <img src={user.profilePicture} alt={user.firstName} className="w-48 h-48 mb-2 rounded-full" />
+                                    <img
+                                        src={user.profilePicture}
+                                        alt={user.firstName}
+                                        className="w-48 h-48 mb-2 rounded-full"
+                                    />
                                 ) : (
                                     <User className="w-48 h-48 mb-2 rounded-full" />
                                 )}
-                                
+
                                 <FileInput
                                     className="absolute top-0 right-0 w-12 h-12 z-10"
                                     onChange={handleFileChange}
@@ -168,19 +175,13 @@ export default function SettingsPage() {
                             {!user?.isVerified && (
                                 <Button
                                     variant="outline"
-                                    className="w-full justify-between text-left"
+                                    className="w-full justify-between text-left dark:text-white"
                                     onClick={handleVerify}
                                 >
-                                    <a
-                                        style={{
-                                            color: "black",
-                                            textDecoration: "none",
-                                        }}
-                                        className="flex items-center gap-2"
-                                    >
+                                    <span className="flex items-center gap-2">
                                         <ShieldCheck className="w-4 h-4" />
                                         Verify Account
-                                    </a>
+                                    </span>
                                     <ChevronRight className="w-4 h-4" />
                                 </Button>
                             )}
@@ -202,7 +203,9 @@ export default function SettingsPage() {
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px]">
                                     <DialogHeader>
-                                        <DialogTitle>Delete Account</DialogTitle>
+                                        <DialogTitle>
+                                            Delete Account
+                                        </DialogTitle>
                                     </DialogHeader>
                                     <p className="text-muted-foreground">
                                         Are you sure you want to delete your
@@ -211,7 +214,9 @@ export default function SettingsPage() {
                                     <div className="flex justify-end gap-4 mt-4">
                                         <Button
                                             variant="outline"
-                                            onClick={() => setIsDeleteOpen(false)}
+                                            onClick={() =>
+                                                setIsDeleteOpen(false)
+                                            }
                                         >
                                             Cancel
                                         </Button>
