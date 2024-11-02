@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 
 import { Scholarship } from "@/lib/types";
-import { getScholarships, searchScholarshipsByName } from '../services/scholarshipService';
+import {
+    getScholarships,
+    searchScholarshipsByName,
+} from "../services/scholarshipService";
 
 import ScholarshipComponent from "@/components/functional/ScholarshipCard";
 import FilterSideBar from "@/components/functional/FilterSideBar";
@@ -10,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import { Menu, Search, X } from "lucide-react";
-
+import Hero from "@/components/functional/Hero";
 
 export default function Home() {
     const [allScholarships, setAllScholarships] = useState<Scholarship[]>([]);
@@ -25,7 +28,7 @@ export default function Home() {
         const fetchScholarships = async () => {
             try {
                 const data = await getScholarships();
-    
+
                 console.log("Scholarships:", data);
                 setAllScholarships(data);
                 setScholarships(data);
@@ -52,20 +55,22 @@ export default function Home() {
                 const data = await searchScholarshipsByName(searchTerm);
 
                 setScholarships(data);
-                setNoResultsMessage('');
+                setNoResultsMessage("");
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
                     setScholarships([]);
-                    setNoResultsMessage('No scholarships found for the search term.');
+                    setNoResultsMessage(
+                        "No scholarships found for the search term."
+                    );
                 } else {
-                    setNoResultsMessage('An error occurred. Please try again.');
+                    setNoResultsMessage("An error occurred. Please try again.");
                 }
             }
         } else {
             setScholarships(allScholarships);
-            setNoResultsMessage('');
+            setNoResultsMessage("");
         }
-    };    
+    };
 
     const clear = () => {
         setSearchTerm("");
@@ -77,6 +82,7 @@ export default function Home() {
     return (
         <div className="min-h-screen w-full bg-background dark:bg-dark-background">
             <Header />
+            <Hero />
             <div className="container mx-auto p-4 max-w-7xl dark:bg-black">
                 <div className="flex flex-col md:flex-row gap-4 mb-8 dark:bg-black">
                     <div className="flex-1">
@@ -108,7 +114,11 @@ export default function Home() {
                     <Menu
                         onClick={toggleSidebar}
                         className="w-8 h-8 ml-2"
-                        style={{ color: "#2b79c2", cursor: "pointer", marginTop: '3px' }}
+                        style={{
+                            color: "#2b79c2",
+                            cursor: "pointer",
+                            marginTop: "3px",
+                        }}
                     />
                 </div>
                 <div className="flex flex-col lg:flex-row gap-8">
@@ -126,12 +136,11 @@ export default function Home() {
                                     />
                                 ))}
                             </div>
-                            ) : (
-                                <div className="text-center text-lg text-gray-500">
-                                    {noResultsMessage}
-                                </div>
-                            )
-                        }
+                        ) : (
+                            <div className="text-center text-lg text-gray-500">
+                                {noResultsMessage}
+                            </div>
+                        )}
                     </div>
                 </div>
 
