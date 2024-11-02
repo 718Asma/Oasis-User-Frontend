@@ -1,76 +1,84 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Scholarship } from "@/lib/types";
+import {
+    addFavorite,
+    getFavorites,
+    removeFavorite,
+} from "@/services/userService";
+
+import { Button } from "@/components/ui/button";
 import {
     Card,
     CardContent,
     CardFooter,
     CardHeader,
     CardTitle,
-} from "../ui/card";
-import {
-    Clock,
-    MapPin,
-    School,
-    Star,
-} from "lucide-react";
-// import { ScrollArea } from "../ui/scroll-area";
-import { Button } from "../ui/button";
-import { useNavigate } from "react-router-dom";
-import { Scholarship } from "@/lib/types";
-import { useEffect, useState } from "react";
-import axios from "axios";
+} from "@/components/ui/card";
+
+import { Clock, MapPin, School, Star } from "lucide-react";
 
 interface ScholarshipCardProps {
     scholarship: Scholarship;
 }
 
-const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) => {
+const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
+    scholarship,
+}) => {
     const navigate = useNavigate();
-    const [favorites, setFavorites] = useState<string[]>([]);
     const [isFavorite, setIsFavorite] = useState<boolean>(false);
-    const userId = localStorage.getItem('userId') || null;
-    const access_token = localStorage.getItem("access_token");
+    const userId = localStorage.getItem("user_id") || null;
 
     const handleDetails = () => {
         navigate(`/scholarship/${scholarship._id}`);
     };
 
-    const getFavorites = async () => {
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            if (userId === null) {
+                return;
+            }
+            try {
+                const { data } = await getFavorites();
+
+                if (data.includes(scholarship._id)) {
+                    setIsFavorite(true);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchFavorites();
+    }, [scholarship, userId]);
+
+    const handleFavorite = async () => {
+        if (isFavorite) {
+            handleRemoveFavorite();
+        } else {
+            handleAddFavorite();
+        }
+    };
+
+    const handleAddFavorite = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/users/favorites', {
-                headers: {
-                    'Authorization': `Bearer ${access_token}`,
-                },
-            });
-            setFavorites(response.data);
+            const data = await addFavorite(scholarship._id);
+            console.log("Success", data);
+            setIsFavorite(true);
         } catch (error) {
             console.error(error);
         }
     };
 
-    useEffect(() => {
-        getFavorites();
-        if (favorites.includes(scholarship._id)) {
-            setIsFavorite(true);
+    const handleRemoveFavorite = async () => {
+        try {
+            const data = await removeFavorite(scholarship._id);
+            console.log("Success", data);
+            setIsFavorite(false);
+        } catch (error) {
+            console.error(error);
         }
-    }, [scholarship, userId]);
-
-    const handleFavorite = async () => {
-        if (localStorage.getItem('userId') === null || localStorage.getItem('access_token') === null) {
-            navigate('/login');
-            return;
-        } else{
-            try {
-                const response = await axios.post(`http://localhost:3000/users/add-favorite`, {scholarshipId: scholarship._id}, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                    },
-                });
-                console.log('Success', response.data);
-                setIsFavorite(!isFavorite);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        
     };
 
     return (
@@ -87,46 +95,42 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({ scholarship }) =
                     {scholarship.title}
                 </CardTitle>
                 <div>
-                    {scholarship.location && scholarship.location != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                    {scholarship.location && scholarship.location != "N/A" && (
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <MapPin className="w-4 h-4 mr-1" />
                             {scholarship.location}
                         </div>
-                    }
-                    {scholarship.provider && scholarship.provider != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                    )}
+                    {scholarship.provider && scholarship.provider != "N/A" && (
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <School className="w-4 h-4 mr-1" />
                             {scholarship.provider}
                         </div>
-                    }
-                    {scholarship.deadline && scholarship.deadline != 'N/A' &&
-                        <div className="flex items-center text-sm text-gray-600 mb-2">
+                    )}
+                    {scholarship.deadline && scholarship.deadline != "N/A" && (
+                        <div className="flex items-center text-sm text-gray-500 mb-2">
                             <Clock className="w-4 h-4 mr-1" />
                             {scholarship.deadline}
                         </div>
-                    }
+                    )}
                 </div>
             </CardContent>
             <br />
             <CardFooter className="flex justify-between">
-                <Button
-                    variant="outline"
-                    // className="flex-1 mr-2 hover:bg-green-100 hover:text-green-700"
-                    onClick={handleDetails}
-                >
+                <Button variant="outline" onClick={handleDetails}>
                     Check more details
                 </Button>
-                {userId === null && (
+                {userId !== null && (
                     <Button
                         variant="outline"
                         style={{ border: "none" }}
-                        // className="flex-1 ml-2 hover:bg-red-100 hover:text-red-700"
                         onClick={handleFavorite}
                     >
-                        {!isFavorite ?
-                            <Star className="w-4 h-4 mr-2" /> :
+                        {!isFavorite ? (
+                            <Star className="w-4 h-4 mr-2" />
+                        ) : (
                             <Star fill="black" className="w-4 h-4 mr-2" />
-                        }
+                        )}
                     </Button>
                 )}
             </CardFooter>

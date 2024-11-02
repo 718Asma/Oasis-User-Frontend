@@ -1,11 +1,14 @@
-import Header from "@/components/functional/Header";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+
 import { Scholarship } from "@/lib/types";
+import { getScholarshipById } from '../services/scholarshipService';
+
+import Header from "@/components/functional/Header";
 import { Card } from "@/components/ui/card";
+
 import { ArrowLeft, Clock } from "lucide-react";
 import { LoadingOutlined } from "@ant-design/icons";
-import axios from "axios";
 
 
 const ScholarshipPage = () => {
@@ -26,9 +29,9 @@ const ScholarshipPage = () => {
     
         try
         {
-            const response = await axios.get(`http://localhost:3000/scholarships/id/${scholarshipId}`);
-            console.log("Response:", response);
-            setScholarship(response.data);
+            const data = await getScholarshipById(scholarshipId);
+            console.log("Response:", data);
+            setScholarship(data);
     
         } catch (error) {
             console.error('Error fetching scholarship:', error);
@@ -40,7 +43,7 @@ const ScholarshipPage = () => {
     }, [scholarshipId]);
     
     return (
-        <div>
+        <div className="bg-background dark:bg-dark-background">
             <Header />
             {
                 scholarship ? (
@@ -104,13 +107,6 @@ const ScholarshipPage = () => {
                                 </div>
                                 <p style={{ color: 'red' }}>{scholarship.deadline}</p>
                             </div>
-                            {/* <div style={{ display: 'flex', justifyContent:'space-between', marginTop: '5vh' }}>
-                                <div style={{ display: 'flex', color: 'grey' }}>
-                                    <Calendar size={20} />&nbsp;
-                                    <p>Program Start Date</p>
-                                </div>
-                                <p style={{ color: 'black' }}>{scholarship.deadline}</p>
-                            </div> */}
                         </Card>
                         <center>
                             <a
@@ -125,8 +121,6 @@ const ScholarshipPage = () => {
                 ) : (
                     <div style={{ display: 'flex', marginLeft: '50%' }}>
                           <LoadingOutlined style={{ fontSize: '5rem', color: '#2b79c2' }} />
-
-                        {/* <p>Loading...</p> */}
                     </div>
                 )
             }

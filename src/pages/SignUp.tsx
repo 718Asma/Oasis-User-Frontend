@@ -1,13 +1,16 @@
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+import { AuthContext } from "../auth/AuthContext";
+import { signup } from "@/services/authService";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { useNavigate } from "react-router-dom";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
-import { AuthContext } from "../auth/AuthContext";
-import { useContext } from "react";
 
 import oasisBanner from '@/assets/oasisBanner.png';
 
@@ -49,14 +52,9 @@ export default function SignUp() {
 		onSubmit: async (values) => {
 			try {
 				console.log("Signing in with values:", values);
-                const { data } = await axios.post(
-                    "http://localhost:3000/auth/signup",
-                    values,
-                    {
-                        withCredentials: true, // Important for cookies (including refresh_token)
-                    }
-                );
+                const { data } = await signup(values);
                 console.log("Sign-up response:", data);
+
                 localStorage.setItem("user_id", data.user_id);
                 localStorage.setItem("access_token", data.access_token);
                 setAccessToken(data.access_token);
@@ -69,7 +67,7 @@ export default function SignUp() {
 	});
 
 	return (
-		<div className="flex min-h-screen">
+		<div className="flex min-h-screen bg-background dark:bg-dark-background">
 			<div
 				className="w-full max-w-md p-8 space-y-6"
 				style={{ marginTop: "auto", marginBottom: "auto" }}
@@ -82,7 +80,7 @@ export default function SignUp() {
 					Enter your information to create an account
 				</p>
 				</div>
-				<form onSubmit={formik.handleSubmit} className="space-y-4">
+				<form onSubmit={formik.handleSubmit} className="space-y-4 dark:text-white">
 				<div>
 					<div>
 						<Label htmlFor="email">Email</Label>
@@ -154,14 +152,14 @@ export default function SignUp() {
 					Create an account
 				</Button>
 				</form>
-				<p className="text-sm text-center">
-				Already have an account?{" "}
-				<a
-					href="/login"
-					className="font-medium text-indigo-600 hover:text-indigo-500"
-				>
-					Log in
-				</a>
+				<p className="text-sm text-center dark:text-gray-300">
+					Already have an account?{" "}
+					<a
+						href="/login"
+						className="font-medium text-indigo-600 hover:text-indigo-500"
+					>
+						Log in
+					</a>
 				</p>
 			</div>
 			<div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-gray-100">

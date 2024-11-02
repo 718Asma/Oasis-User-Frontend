@@ -1,12 +1,15 @@
+import { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useFormik } from "formik";
+import * as Yup from "yup";
+
+import { AuthContext } from "../auth/AuthContext";
+import { forgotPassword, login } from "@/services/authService";
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../auth/AuthContext"; // Import the AuthContext
 
 import oasisBanner from '@/assets/oasisBanner.png';
 
@@ -24,8 +27,9 @@ const validationSchema = Yup.object({
 
 export default function Login() {
     const { setAccessToken } = useContext(AuthContext); // Get the setter function from context
-
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
+
     const formik = useFormik({
         initialValues: {
             email: "",
@@ -35,33 +39,39 @@ export default function Login() {
         onSubmit: async (values) => {
             try {
                 console.log("Logging in with values:", values);
-                const { data } = await axios.post(
-                    "http://localhost:3000/auth/login",
-                    values,
-                    {
-                        withCredentials: true, // Important for cookies (including refresh_token)
-                    }
-                );
-                localStorage.setItem("user_id", data.user_id); // Store user in local storage
-                localStorage.setItem("access_token", data.access_token); // Store access token in local storage
-                setAccessToken(data.access_token); // Store access token in state
-                setTimeout(() => {
+                const response = await login(values);
+                console.log("Login response:", response);
+
+                if(response.success){
+                    localStorage.setItem("user_id", response.data.user_id); // Store user in local storage
+                    localStorage.setItem("access_token", response.data.access_token); // Store access token in local storage
+                    setAccessToken(response.data.access_token); // Store access token in state
                     navigate("/home");
-                }, 100);
+                }
+                else{
+                    console.error("Login error:", response.error);
+                    setError(response.error);
+                }
             } catch (error) {
                 console.error("Login error:", error);
             }
         },
     });
 
+    const handleForgotPassword = async (email: string) => {
+        console.log('Email :', email);
+        const data = await forgotPassword(email);
+        console.log("Forgot password response:", data);
+    }
+
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-background dark:bg-dark-background">
             <div className="w-full max-w-md p-8 space-y-6" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
                 <div className="space-y-2">
                     <h1 className="text-5xl font-bold">Log In</h1>
                     <p className="text-sm text-gray-500">Enter your email below to login to your account</p>
                 </div>
-                <form onSubmit={formik.handleSubmit} className="space-y-4">
+                <form onSubmit={formik.handleSubmit} className="space-y-4 dark:text-white">
                     <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
@@ -78,7 +88,7 @@ export default function Login() {
                     <div className="space-y-2">
                         <div className="flex items-center">
                             <Label htmlFor="password">Password</Label>
-                            <a href="#" className="ml-auto text-sm underline">Forgot your password?</a>
+                            <a onClick={() => handleForgotPassword(formik.values.email)} className="ml-auto text-sm underline">Forgot your password?</a>
                         </div>
                         <Input
                             id="password"
@@ -90,9 +100,10 @@ export default function Login() {
                             <div className="text-red-500 text-sm">{formik.errors.password}</div>
                         )}
                     </div>
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
                     <Button className="w-full" type="submit">Log In</Button>
                 </form>
-                <p className="text-sm text-center">
+                <p className="text-sm text-center dark:text-gray-300">
                     Don't have an account? <a href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">Sign Up</a>
                 </p>
             </div>

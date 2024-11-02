@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 import { Scholarship } from "@/lib/types";
+import { getScholarships, searchScholarshipsByName } from '../services/scholarshipService';
+
 import ScholarshipComponent from "@/components/functional/ScholarshipCard";
+import FilterSideBar from "@/components/functional/FilterSideBar";
 import Header from "@/components/functional/Header";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 import { Menu, Search, X } from "lucide-react";
-import FilterSideBar from "@/components/functional/FilterSideBar";
-import axios from "axios";
+
 
 export default function Home() {
     const [allScholarships, setAllScholarships] = useState<Scholarship[]>([]);
@@ -17,48 +20,18 @@ export default function Home() {
     const [opened, setOpened] = useState<boolean>(false);
     const [searched, setSearched] = useState<boolean>(false);
     const [filtered, setFiltered] = useState<boolean>(false);
-    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
         const fetchScholarships = async () => {
-            fetch("http://localhost:3000/scholarships/")
-                .then((response) => response.json())
-                .then((data) => {
-                    const scholarshipsData: Scholarship[] = data.map(
-                        (scholarship: any) => {
-                            let parsedCriteria = null;
-                            if (scholarship.criteria) {
-                                parsedCriteria =
-                                    typeof scholarship.criteria === "string"
-                                        ? JSON.parse(scholarship.criteria)
-                                        : scholarship.criteria;
-                            }
-
-                            return {
-                                ...scholarship,
-                                criteria: {
-                                    Non_US:
-                                        parsedCriteria?.[
-                                            "Non-U.S. Citizens Eligible"
-                                        ] || null,
-                                    GPA: parsedCriteria?.["GPA"] || null,
-                                    Accredited_University:
-                                        parsedCriteria?.[
-                                            "Accredited University Required"
-                                        ] || null,
-                                    Minimum_Age:
-                                        parsedCriteria?.["Minimum Age"] || null,
-                                },
-                            };
-                        }
-                    );
-                    console.log("Scholarships:", scholarshipsData);
-                    setAllScholarships(scholarshipsData);
-                    setScholarships(scholarshipsData);
-                })
-                .catch((error) => {
-                    console.error("Error fetching scholarships:", error);
-                });
+            try {
+                const data = await getScholarships();
+    
+                console.log("Scholarships:", data);
+                setAllScholarships(data);
+                setScholarships(data);
+            } catch (error) {
+                console.error("Error fetching scholarships:", error);
+            }
         };
 
         fetchScholarships();
@@ -73,29 +46,26 @@ export default function Home() {
     };
 
     const handleSearch = async () => {
-        if (searchTerm) {
+        if (searchTerm.trim()) {
             setSearched(true);
             try {
-                const response = await axios.get(`http://localhost:3000/scholarships/search?name=${searchTerm}`, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                    },
-                });
-    
-                setScholarships(response.data);
-                setNoResultsMessage("");
+                const data = await searchScholarshipsByName(searchTerm);
+
+                setScholarships(data);
+                setNoResultsMessage('');
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
                     setScholarships([]);
-                    setNoResultsMessage("No scholarships found for the search term.");
+                    setNoResultsMessage('No scholarships found for the search term.');
                 } else {
-                    console.error("Error searching scholarships:", error);
-                    setNoResultsMessage("An error occurred while searching. Please try again.");
+                    setNoResultsMessage('An error occurred. Please try again.');
                 }
             }
+        } else {
+            setScholarships(allScholarships);
+            setNoResultsMessage('');
         }
-    };
-    
+    };    
 
     const clear = () => {
         setSearchTerm("");
@@ -105,15 +75,15 @@ export default function Home() {
     };
 
     return (
-        <>
+        <div className="min-h-screen w-full bg-background dark:bg-dark-background">
             <Header />
-            <div className="container mx-auto p-4 max-w-7xl">
-                <div className="flex flex-col md:flex-row gap-4 mb-8">
+            <div className="container mx-auto p-4 max-w-7xl dark:bg-black">
+                <div className="flex flex-col md:flex-row gap-4 mb-8 dark:bg-black">
                     <div className="flex-1">
                         <div className="relative">
                             <Input
                                 placeholder="Search scholarships..."
-                                className="pl-8"
+                                className="pl-8 dark:text-white"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -135,19 +105,15 @@ export default function Home() {
                             Clear Filters
                         </Button>
                     ) : null}
-                    <Button
+                    <Menu
                         onClick={toggleSidebar}
-                        className="bg-primary hover:bg-primary/90 text-black bg-white hover:bg-gray-100"
-                    >
-                        <Menu
-                            className="w-8 h-8 ml-2"
-                            style={{ color: "#0d6efd" }}
-                        />
-                    </Button>
+                        className="w-8 h-8 ml-2"
+                        style={{ color: "#2b79c2", cursor: "pointer", marginTop: '3px' }}
+                    />
                 </div>
                 <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1">
-                        <h2 className="text-2xl font-semibold mb-4">
+                        <h2 className="text-2xl font-semibold mb-4 dark:text-white">
                             Scholarships
                         </h2>
                         {scholarships.length !== 0 ? (
@@ -171,13 +137,11 @@ export default function Home() {
 
                 {opened && (
                     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-10">
-                        <div className="fixed right-0 top-0 w-[75vw] max-w-[500px] h-full bg-white shadow-lg z-20 overflow-x-hidden">
-                            <Button
+                        <div className="fixed right-0 top-0 w-[75vw] max-w-[500px] h-full bg-white dark:bg-dark-background shadow-lg z-20 overflow-x-hidden">
+                            <X
                                 onClick={toggleSidebar}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-white hover:bg-gray-100"
-                            >
-                                <X className="w-6 h-6" />
-                            </Button>
+                                className="w-6 h-6 absolute top-4 right-4 text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:bg-black dark:hover:bg-gray-800"
+                            />
                             <FilterSideBar
                                 filteredScholarships={allScholarships}
                                 setFiltered={setFiltered}
@@ -188,6 +152,6 @@ export default function Home() {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }

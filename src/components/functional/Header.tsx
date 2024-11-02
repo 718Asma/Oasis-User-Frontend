@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Avatar } from '@mantine/core';
-import "../styles/Header.css";
+import { useNavigate } from 'react-router-dom';
 
 import { Student } from "@/lib/types";
-import { LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getUserById } from "@/services/userService";
+
+import { useTheme } from '@/components/theme-provider';
+import { ModeToggle } from '@/components/mode-toggle';
+import { AccountDropdown } from '@/components/account';
+
+import { Button } from '@/components/ui/button';
+import "../styles/Header.css";
 
 import oasisLogo from '@/assets/oasis2.png';
+import oasisDarkLogo from '@/assets/oasisDark.png';
 
 const Header = () => {
+    const { theme } = useTheme();
     const navigate = useNavigate();
     const [user, setUser] = useState<Student | null>(null);
     const user_id = localStorage.getItem("user_id");
-    const access_token = localStorage.getItem("access_token");
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -23,11 +28,7 @@ const Header = () => {
             }
 
             try {
-                const { data } = await axios.get(`http://localhost:3000/users/id/${user_id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                    },
-                });
+                const { data } = await getUserById(user_id);
                 console.log("User info:", data);
                 const profileImgUrl = data.profilePicture 
                     ? `http://localhost:3000/${data.profilePicture}`
@@ -42,40 +43,32 @@ const Header = () => {
         fetchUserInfo();
     }, [user_id]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
-    };
-
     return (
         <header className="main">
             <div className="logo">
-                <img src={oasisLogo} alt="Oasis Logo" />
+                <img 
+                    src={theme === "dark" ? oasisDarkLogo : oasisLogo}
+                    alt="Oasis Logo" 
+                />
                 <h1>Oasis</h1>
             </div>
-            {user ? (
-                <div className="user" style={{ display: 'flex', fontSize: '16px' }}>
-                    {user.profilePicture && <img src={user.profilePicture} alt={user.firstName} className="w-16 h-16 rounded-full" style={{ marginRight: '0px' }} />}
-                    <div>
-                        <a href={`/settings/${user_id}`} className="font-semibold">
-                            {user.firstName} {user.lastName}
-                        </a>
-                        <br/>
-                        <button className="btn button" onClick={handleLogout}>
-                            <LogOut />&nbsp;
-                            Log Out
-                        </button>
+            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                <div className='dark:text-white' style={{ marginRight: '1rem' }}>
+                    <ModeToggle />
+                </div>
+                {user ? (
+                    <div className='dark:text-white' style={{ marginRight: '1rem' }}>
+                        <AccountDropdown />
                     </div>
-                </div>
-            ) : (
-                <div className="user">
-                    <button className="btn button connect" onClick={() => navigate('/login')}>
+                ) : (
+                    <Button
+                        onClick={() => navigate('/login')}
+                        className="bg-primary hover:bg-primary/90 text-white"
+                    >
                         Connect
-                    </button>
-                </div>
-            )}
+                    </Button>
+                )}
+            </div>
         </header>
     );
 };
