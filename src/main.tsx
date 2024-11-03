@@ -1,8 +1,8 @@
-import { StrictMode } from "react";
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { MantineProvider } from '@mantine/core'; // Import MantineProvider
+import { MantineProvider } from "@mantine/core"; // Import MantineProvider
 import "./index.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 import {
     createBrowserRouter,
@@ -19,6 +19,7 @@ import Login from "./pages/Login.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import PrivateRoute from "./auth/PrivateRoute.tsx";
 import { AuthProvider } from "./auth/AuthContext.tsx";
+import AboutUs from "./pages/AboutUs.tsx";
 
 const router = createBrowserRouter([
     {
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
                 <SettingsPage />
             </PrivateRoute>
         ),
+    },
+    {
+        path: "/about-us",
+        element: <AboutUs />,
     },
 ]);
 
