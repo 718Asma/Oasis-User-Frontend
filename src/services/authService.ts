@@ -90,12 +90,13 @@ export const forgotPassword = async (email: string) => {
 export const resetPassword = async (
     id: string,
     token: string,
-    newPassword: string
+    password: string,
+    confirmPassword: string
 ) => {
     try {
         const response = await apiClient.post(
             `/auth/reset-password/${id}/${token}`,
-            { newPassword }
+            { password, confirmPassword }
         );
         return response.data;
     } catch (error) {

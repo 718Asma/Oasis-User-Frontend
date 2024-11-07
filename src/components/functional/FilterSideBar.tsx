@@ -40,7 +40,8 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
         const fetchLocations = async () => {
             try {
                 const response = await getScholarshipLocations();
-                const data: string[] = response.data;
+                console.log(response);
+                const data: string[] = response;
                 const uniqueLocations = [...new Set(data)];
                 setLocations(uniqueLocations);
             } catch (error) {

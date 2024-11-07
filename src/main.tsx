@@ -1,6 +1,8 @@
-import React, { StrictMode } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { MantineProvider } from "@mantine/core"; // Import MantineProvider
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -20,6 +22,7 @@ import SettingsPage from "./pages/Settings.tsx";
 import PrivateRoute from "./auth/PrivateRoute.tsx";
 import { AuthProvider } from "./auth/AuthContext.tsx";
 import AboutUs from "./pages/AboutUs.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 const router = createBrowserRouter([
     {
@@ -52,6 +55,12 @@ const router = createBrowserRouter([
         ),
     },
     {
+        path: "/reset-password/:userId/:token",
+        element: (
+            <ResetPassword />
+        ),
+    },
+    {
         path: "/about-us",
         element: <AboutUs />,
     },
@@ -59,6 +68,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
+        <ToastContainer position="bottom-right" autoClose={5000} />
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
             <MantineProvider>
                 <AuthProvider>
