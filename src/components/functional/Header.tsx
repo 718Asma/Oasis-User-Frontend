@@ -7,12 +7,10 @@ import { getUserById } from "@/services/userService";
 import { useTheme } from '@/components/theme-provider';
 import { ModeToggle } from '@/components/mode-toggle';
 import { AccountDropdown } from '@/components/account';
+import { Notification } from '@/components/notification';
 
 import { Button } from '@/components/ui/button';
 import "../styles/Header.css";
-
-import oasisLogo from '@/assets/oasis2.png';
-import oasisDarkLogo from '@/assets/oasisDark.png';
 
 const Header = () => {
     const { theme } = useTheme();
@@ -47,7 +45,7 @@ const Header = () => {
         <header className="main">
             <div className="logo">
                 <img 
-                    src={theme === "dark" ? oasisDarkLogo : oasisLogo}
+                    src={theme === "dark" ? "src/assets/oasisDark.png" : "src/assets/oasis2.png"}
                     alt="Oasis Logo" 
                 />
                 <h1>Oasis</h1>
@@ -57,9 +55,14 @@ const Header = () => {
                     <ModeToggle />
                 </div>
                 {user ? (
-                    <div className='dark:text-white' style={{ marginRight: '1rem' }}>
-                        <AccountDropdown />
-                    </div>
+                    <>
+                        <div className='dark:text-white' style={{ marginRight: '1rem' }}>
+                            <Notification />
+                        </div>
+                        <div className='dark:text-white' style={{ marginRight: '1rem' }}>
+                            <AccountDropdown />
+                        </div>
+                    </>
                 ) : (
                     <Button
                         onClick={() => navigate('/login')}

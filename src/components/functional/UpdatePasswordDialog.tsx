@@ -3,9 +3,9 @@ import * as Yup from "yup";
 
 import { changePassword } from "@/services/userService";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,

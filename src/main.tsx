@@ -19,6 +19,7 @@ import Login from "./pages/Login.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import PrivateRoute from "./auth/PrivateRoute.tsx";
 import { AuthProvider } from "./auth/AuthContext.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 const router = createBrowserRouter([
     {
@@ -48,6 +49,12 @@ const router = createBrowserRouter([
             <PrivateRoute>
                 <SettingsPage />
             </PrivateRoute>
+        ),
+    },
+    {
+        path: "/reset-password/:userId/:token",
+        element: (
+            <ResetPassword />
         ),
     },
 ]);

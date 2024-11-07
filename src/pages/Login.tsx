@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { toast } from "react-toastify";
 
 import { AuthContext } from "../auth/AuthContext";
 import { forgotPassword, login } from "@/services/authService";
@@ -10,8 +11,6 @@ import { forgotPassword, login } from "@/services/authService";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-import oasisBanner from '@/assets/oasisBanner.png';
 
 const validationSchema = Yup.object({
     email: Yup.string()
@@ -38,7 +37,6 @@ export default function Login() {
         validationSchema,
         onSubmit: async (values) => {
             try {
-                console.log("Logging in with values:", values);
                 const response = await login(values);
                 console.log("Login response:", response);
 
@@ -62,6 +60,14 @@ export default function Login() {
         console.log('Email :', email);
         const data = await forgotPassword(email);
         console.log("Forgot password response:", data);
+        
+        if (data.success) {
+            // Show toast notification on success
+            toast.success(data.message);
+        } else {
+            // Optionally show an error toast
+            toast.error("Failed to send reset email. Please try again.");
+        }
     }
 
     return (
@@ -108,7 +114,7 @@ export default function Login() {
                 </p>
             </div>
             <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-center bg-gray-100">
-                <img src={oasisBanner} alt="Log In" className="h-full w-full" />
+                <img src='src\\assets\\oasisBanner.png' alt="Log In" className="h-full w-full" />
             </div>
         </div>
     );
