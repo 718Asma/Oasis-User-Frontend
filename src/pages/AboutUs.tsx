@@ -67,12 +67,12 @@ export default function AboutContactPage() {
                 subject: values.subject === 'other' ? values.otherSubject : values.subject,
             };
 
-               // Use emailjs.send instead of sendForm
+            try {
                 emailjs.send(
                     'service_m184m4t',
                     'template_pcaulrg',
                     updatedValues,
-                    'vCXgFISy19IVXT4EL' // Replace with your actual public key
+                    'vCXgFISy19IVXT4EL'
                 )
                 .then(
                     (response) => {
@@ -85,27 +85,9 @@ export default function AboutContactPage() {
                         toast.error("Something went wrong. Please try again later.");
                     }
                 );
-
-            // try {
-            //     emailjs
-            //         .sendForm('service_m184m4t', 'template_pcaulrg', updatedValues, {
-            //             publicKey: 'vCXgFISy19IVXT4EL',
-            //         })
-            //         .then(
-            //             () => {
-            //                 console.log('SUCCESS!');
-            //                 toast.success("Thank you for your message. We'll get back to you soon!");
-            //             },
-            //             (error: any) => {
-            //                 console.log('FAILED...', error.text);
-            //                 toast.error("Oops! Something went wrong. Please try again later.");
-            //             },
-            //         );
-
-            // } catch (error) {
-            //     console.error("Failed to send message:", error);
-            //     toast.error("Oops! Something went wrong. Please try again later.");
-            // }
+            } catch (error) {
+                console.error("Error sending message:", error);
+            }
         },
     });
 
