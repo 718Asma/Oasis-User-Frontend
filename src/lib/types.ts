@@ -27,3 +27,11 @@ export interface Scholarship {
     url: string;
     status: "Approved";
 }
+
+export interface Notif {
+    _id: string;
+    scholarshipId: string;
+    date: string;
+    message: string;
+    isRead: boolean;
+}

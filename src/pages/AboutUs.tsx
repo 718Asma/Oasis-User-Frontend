@@ -1,15 +1,11 @@
-import React, { useState } from "react";
-import {
-    MapPin,
-    Mail,
-    Facebook,
-    Twitter,
-    Linkedin,
-    Instagram,
-    CheckCircle,
-    Book,
-    Users,
-} from "lucide-react";
+import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { toast } from "react-toastify";
+// import emailjs from '@emailjs/browser';
+import emailjs from "emailjs-com";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,19 +17,115 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { ModeToggle } from "@/components/mode-toggle";
+
+import {
+    MapPin,
+    Mail,
+    Facebook,
+    Twitter,
+    Linkedin,
+    Instagram,
+    CheckCircle,
+    Book,
+    Users,
+    ArrowLeft,
+} from "lucide-react";
+// import { ModeToggle } from "@/components/mode-toggle";
+
+const validationSchema = Yup.object({
+    name: Yup.string()
+        .notRequired(),
+    email: Yup.string()
+        .email("Invalid email address")
+        .min(3, "Email must be at least 3 characters")
+        .max(100, "Email must be at most 100 characters")
+        .required("Email is required"),
+    subject: Yup.string()
+        .required("Subject is required"),
+    otherSubject: Yup.string()
+        .notRequired(),
+    message: Yup.string()
+        .required("Message is required"),
+});
 
 export default function AboutContactPage() {
-    const [isSubmitted, setIsSubmitted] = useState(false);
+    const navigate = useNavigate();
+  const formRef = useRef(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        // Here you would typically handle the form submission
-        setIsSubmitted(true);
+    const formik = useFormik({
+        initialValues: {
+            name: "",
+            email: "",
+            subject: "",
+            otherSubject: "",
+            message: "",
+        },
+        validationSchema,
+        onSubmit: async (values) => {
+            const updatedValues = {
+                ...values,
+                subject: values.subject === 'other' ? values.otherSubject : values.subject,
+            };
+
+               // Use emailjs.send instead of sendForm
+                emailjs.send(
+                    'service_m184m4t',
+                    'template_pcaulrg',
+                    updatedValues,
+                    'vCXgFISy19IVXT4EL' // Replace with your actual public key
+                )
+                .then(
+                    (response) => {
+                        console.log('SUCCESS!', response);
+                        toast.success("Message sent successfully!");
+                        formik.resetForm();
+                    },
+                    (error) => {
+                        console.error('FAILED...', error);
+                        toast.error("Something went wrong. Please try again later.");
+                    }
+                );
+
+            // try {
+            //     emailjs
+            //         .sendForm('service_m184m4t', 'template_pcaulrg', updatedValues, {
+            //             publicKey: 'vCXgFISy19IVXT4EL',
+            //         })
+            //         .then(
+            //             () => {
+            //                 console.log('SUCCESS!');
+            //                 toast.success("Thank you for your message. We'll get back to you soon!");
+            //             },
+            //             (error: any) => {
+            //                 console.log('FAILED...', error.text);
+            //                 toast.error("Oops! Something went wrong. Please try again later.");
+            //             },
+            //         );
+
+            // } catch (error) {
+            //     console.error("Failed to send message:", error);
+            //     toast.error("Oops! Something went wrong. Please try again later.");
+            // }
+        },
+    });
+
+    const handleGoBack = () => {
+        navigate(-1);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+            <ArrowLeft
+                style={{
+                    color: "#000000", 
+                    position: "fixed", 
+                    top: "16%", 
+                    left: "5.7%", 
+                    zIndex: 50
+                }}
+                className="sm:left-4 md:left-5 lg:left-6" // Adjust for responsiveness
+                onClick={handleGoBack}
+            />
             {/* Hero Section */}
             <section className="relative h-[50vh] flex items-center justify-center text-center text-white dark:text-gray-200">
                 <div className="absolute inset-0 bg-[#2563eb] dark:bg-gray-800 z-10"></div>
@@ -165,7 +257,7 @@ export default function AboutContactPage() {
                                 className="rounded-full mx-auto mb-4"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
-                                Sarah Johnson
+                                Yassine Krichen
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Co-Founder & CEO
@@ -180,7 +272,7 @@ export default function AboutContactPage() {
                                 className="rounded-full mx-auto mb-4"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
-                                Michael Lee
+                                Asma Khelifi
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Co-Founder & CTO
@@ -195,13 +287,15 @@ export default function AboutContactPage() {
                                 className="rounded-full mx-auto mb-4"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
-                                Emily Chen
+                                Talel Turki
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Head of Partnerships
                             </p>
                         </div>
-                        <div className="text-center md:col-start-2">
+                    </div>
+                    <div className="grid grid-cols-2 mt-8 max-w-3xl mx-auto">
+                        <div className="text-center">
                             <img
                                 src="/placeholder.svg?height=150&width=150"
                                 alt="Team Member 4"
@@ -210,13 +304,13 @@ export default function AboutContactPage() {
                                 className="rounded-full mx-auto mb-4"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
-                                David Rodriguez
+                                Arij Hamraoui
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Lead Developer
                             </p>
                         </div>
-                        <div className="text-center md:col-start-3">
+                        <div className="text-center">
                             <img
                                 src="/placeholder.svg?height=150&width=150"
                                 alt="Team Member 5"
@@ -225,7 +319,7 @@ export default function AboutContactPage() {
                                 className="rounded-full mx-auto mb-4"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
-                                Olivia Taylor
+                                Yorna Salouej
                             </h3>
                             <p className="text-sm text-gray-600 dark:text-gray-300">
                                 UX Designer
@@ -241,13 +335,34 @@ export default function AboutContactPage() {
                     <h2 className="text-3xl font-bold mb-8 text-center">
                         Get in Touch
                     </h2>
-                    <form onSubmit={handleSubmit} className="mb-12">
+                    <form ref={formRef} onSubmit={formik.handleSubmit} className="mb-12">
                         <div className="grid md:grid-cols-2 gap-6 mb-6">
-                            <Input type="text" placeholder="Name" required />
-                            <Input type="email" placeholder="Email" required />
+                            <Input
+                                id="name"
+                                type="text"
+                                value={formik.values.name}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                placeholder="Name"
+                                required
+                            />
+                            <Input
+                                id="email"
+                                type="email"
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                placeholder="Email" 
+                                required
+                            />
                         </div>
                         <div className="mb-6">
-                            <Select>
+                            <Select
+                                value={formik.values.subject}
+                                onValueChange={(value) => {
+                                    formik.setFieldValue("subject", value);
+                                }}
+                            >
                                 <SelectTrigger>
                                     <SelectValue placeholder="Subject" />
                                 </SelectTrigger>
@@ -265,7 +380,24 @@ export default function AboutContactPage() {
                                 </SelectContent>
                             </Select>
                         </div>
+                        {formik.values.subject === "other" && (
+                            <div className="mb-6">
+                                <Input
+                                    id="otherSubject"
+                                    type="text"
+                                    value={formik.values.otherSubject}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    placeholder="Please specify"
+                                    required
+                                />
+                            </div>
+                        )}
                         <Textarea
+                            id="message"
+                            value={formik.values.message}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                             placeholder="Message"
                             className="mb-6"
                             required
@@ -278,12 +410,6 @@ export default function AboutContactPage() {
                             Send Message
                         </Button>
                     </form>
-                    {isSubmitted && (
-                        <div className="text-center text-green-600 mb-6">
-                            Thank you for your message. We&apos;ll get back to
-                            you soon!
-                        </div>
-                    )}
                     <div className="text-center">
                         <div className="flex items-center justify-center mb-4">
                             <Mail className="w-5 h-5 mr-2" />
@@ -291,7 +417,7 @@ export default function AboutContactPage() {
                                 href="mailto:contact@scholarshipsoasis.com"
                                 className="text-blue-600 hover:underline"
                             >
-                                contact@scholarshipsoasis.com
+                                scholarshipsoasis@gmail.com
                             </a>
                         </div>
                         <div className="flex items-center justify-center">

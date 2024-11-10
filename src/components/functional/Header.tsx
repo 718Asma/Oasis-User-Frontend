@@ -46,7 +46,10 @@ const Header = () => {
 
     return (
         <header className="main">
-            <div className="logo">
+            <div
+                className="logo"
+                onClick={() => navigate('/about-us')}
+            >
                 <img 
                     src={theme === "dark" ? oasisDarkLogo : oasisLogo}
                     alt="Oasis Logo" 

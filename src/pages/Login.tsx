@@ -11,6 +11,7 @@ import { forgotPassword, login } from "@/services/authService";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { updateNotifications } from "@/services/userService";
 
 const validationSchema = Yup.object({
     email: Yup.string()
@@ -44,6 +45,7 @@ export default function Login() {
                     localStorage.setItem("user_id", response.data.user_id); // Store user in local storage
                     localStorage.setItem("access_token", response.data.access_token); // Store access token in local storage
                     setAccessToken(response.data.access_token); // Store access token in state
+                    await updateNotifications(); // Get notifications
                     navigate("/home");
                 }
                 else{

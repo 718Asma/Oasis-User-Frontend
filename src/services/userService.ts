@@ -125,3 +125,36 @@ export const removeFavorite = async (scholarshipId: string) => {
     throw error;
   }
 };
+
+// Favorites' Notifications
+export const updateNotifications = async () => {
+  try {
+    const response = await apiClient.get('/users/check-favorite-scholarships');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    throw error;
+  }
+};
+
+// Get notifications
+export const getNotifications = async () => {
+  try {
+    const response = await apiClient.get('/users/notifications');
+    return response;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    throw error;
+  }
+};
+
+// Mark notification as read
+export const markAsRead = async (notificationId: string) => {
+  try {
+    const response = await apiClient.post(`/users/mark-notification-read/${notificationId}`);
+    return response;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    throw error;
+  }
+};

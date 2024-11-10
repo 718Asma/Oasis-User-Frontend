@@ -4,7 +4,7 @@ import apiClient from "./apiClient";
 // Sign up
 export const signup = async (values: { firstName: string, lastName: string, email: string; password: string, confirmPassword:string }) => {
     try {
-        const { data } = await apiClient.post("/auth/signup", values, {
+        const data = await apiClient.post("/auth/signup", values, {
             withCredentials: true, // Important for cookies (including refresh_token)
         });
         return data;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import { Scholarship } from "@/lib/types";
 import {
@@ -23,6 +23,9 @@ export default function Home() {
     const [opened, setOpened] = useState<boolean>(false);
     const [searched, setSearched] = useState<boolean>(false);
     const [filtered, setFiltered] = useState<boolean>(false);
+    
+    // Create a ref for the search section
+    const searchSectionRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchScholarships = async () => {
@@ -79,17 +82,23 @@ export default function Home() {
         setFiltered(false);
     };
 
+    // Function to scroll to search section
+    const scrollToSearchSection = () => {
+        console.log("Scrolling to search section");
+        searchSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
     return (
         <div className="min-h-screen w-full bg-background dark:bg-dark-background">
             <Header />
-            <Hero />
+            <Hero scrollToSearch={scrollToSearchSection} />
             <div className="container mx-auto p-4 max-w-7xl dark:bg-black">
-                <div className="flex flex-col md:flex-row gap-4 mb-8 dark:bg-black">
+                <div ref={searchSectionRef} className="flex flex-col md:flex-row gap-4 mb-8 dark:bg-black mt-8">
                     <div className="flex-1">
                         <div className="relative">
                             <Input
                                 placeholder="Search scholarships..."
-                                className="pl-8 dark:text-white"
+                                className="pl-8 dark:text-white mb-8"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

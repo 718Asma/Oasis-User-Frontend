@@ -19,13 +19,19 @@ import {
     DialogTrigger,
 } from "../ui/dialog";
 
-const Hero: React.FC = () => {
+const Hero: React.FC<{ scrollToSearch: () => void }> = ({ scrollToSearch }) => {
     return (
         <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-24 lg:py-32">
             <div className="container mx-auto px-4 text-center">
-                <div className="flex justify-center mb-8">
-                    <GraduationCap className="h-20 w-20" />
+                <div className="flex justify-center mb-14">
+                    {/* <GraduationCap className="h-20 w-20" /> */}
                     {/* TODO: replace it with the logo */}
+                    <img
+                        src="src\assets\oasisWhite.png"
+                        alt="Oasis Logo"
+                        className="h-20 w-20"
+                    />
+                    <span style={{ fontSize: '52px', fontFamily: 'Bookman Old Style', fontWeight: 'bold' }}>Oasis</span>
                 </div>
                 <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-white">
                     Unlock Your Educational Future
@@ -39,6 +45,7 @@ const Hero: React.FC = () => {
                     <Button
                         size="lg"
                         className="bg-white text-blue-600 hover:bg-blue-100"
+                        onClick={scrollToSearch}
                     >
                         Begin Your Search
                     </Button>

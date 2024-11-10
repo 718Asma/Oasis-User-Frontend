@@ -50,7 +50,8 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
             }
         };
 
-        fetchFavorites();
+        if(userId !== null)
+            fetchFavorites();
     }, [scholarship, userId]);
 
     const handleFavorite = async () => {
