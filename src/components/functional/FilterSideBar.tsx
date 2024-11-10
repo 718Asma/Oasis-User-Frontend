@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 
 import "../styles/FilterSideBar.css";
+import { verifyToken } from "@/services/authService";
 
 interface FilterSideBarProps {
     filteredScholarships: Scholarship[];
@@ -34,7 +35,7 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
     const [location, setLocation] = useState<string>("");
     const [deadline, setDeadline] = useState<Date | null>(null);
     const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
-    const user_id = localStorage.getItem("user_id") || null;
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -50,6 +51,20 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
         };
 
         fetchLocations();
+    }, []);
+
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            try {
+                const response = await verifyToken();
+                console.log(response);
+                setLoggedIn(true);
+            } catch (error) {
+                console.error("Error verifying token:", error);
+            }
+        };
+
+        checkLoggedIn();
     }, []);
 
     const handleFilters = async () => {
@@ -124,7 +139,7 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
                         }}
                     />
                 </div>
-                {user_id !== null && (
+                {loggedIn && (
                     <div style={{ display: "flex", marginTop: "1.5rem" }}>
                         <Checkbox
                             onChange={(e) => {
