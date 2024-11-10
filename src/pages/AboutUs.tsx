@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useFormik } from "formik";
@@ -33,24 +33,20 @@ import {
 // import { ModeToggle } from "@/components/mode-toggle";
 
 const validationSchema = Yup.object({
-    name: Yup.string()
-        .notRequired(),
+    name: Yup.string().notRequired(),
     email: Yup.string()
         .email("Invalid email address")
         .min(3, "Email must be at least 3 characters")
         .max(100, "Email must be at most 100 characters")
         .required("Email is required"),
-    subject: Yup.string()
-        .required("Subject is required"),
-    otherSubject: Yup.string()
-        .notRequired(),
-    message: Yup.string()
-        .required("Message is required"),
+    subject: Yup.string().required("Subject is required"),
+    otherSubject: Yup.string().notRequired(),
+    message: Yup.string().required("Message is required"),
 });
 
 export default function AboutContactPage() {
     const navigate = useNavigate();
-  const formRef = useRef(null);
+    const formRef = useRef(null);
 
     const formik = useFormik({
         initialValues: {
@@ -64,27 +60,33 @@ export default function AboutContactPage() {
         onSubmit: async (values) => {
             const updatedValues = {
                 ...values,
-                subject: values.subject === 'other' ? values.otherSubject : values.subject,
+                subject:
+                    values.subject === "other"
+                        ? values.otherSubject
+                        : values.subject,
             };
 
             try {
-                emailjs.send(
-                    'service_m184m4t',
-                    'template_pcaulrg',
-                    updatedValues,
-                    'vCXgFISy19IVXT4EL'
-                )
-                .then(
-                    (response) => {
-                        console.log('SUCCESS!', response);
-                        toast.success("Message sent successfully!");
-                        formik.resetForm();
-                    },
-                    (error) => {
-                        console.error('FAILED...', error);
-                        toast.error("Something went wrong. Please try again later.");
-                    }
-                );
+                emailjs
+                    .send(
+                        "service_m184m4t",
+                        "template_pcaulrg",
+                        updatedValues,
+                        "vCXgFISy19IVXT4EL"
+                    )
+                    .then(
+                        (response) => {
+                            console.log("SUCCESS!", response);
+                            toast.success("Message sent successfully!");
+                            formik.resetForm();
+                        },
+                        (error) => {
+                            console.error("FAILED...", error);
+                            toast.error(
+                                "Something went wrong. Please try again later."
+                            );
+                        }
+                    );
             } catch (error) {
                 console.error("Error sending message:", error);
             }
@@ -99,11 +101,11 @@ export default function AboutContactPage() {
         <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100">
             <ArrowLeft
                 style={{
-                    color: "#000000", 
-                    position: "fixed", 
-                    top: "16%", 
-                    left: "5.7%", 
-                    zIndex: 50
+                    color: "#000000",
+                    position: "fixed",
+                    top: "16%",
+                    left: "5.7%",
+                    zIndex: 50,
                 }}
                 className="sm:left-4 md:left-5 lg:left-6" // Adjust for responsiveness
                 onClick={handleGoBack}
@@ -317,7 +319,11 @@ export default function AboutContactPage() {
                     <h2 className="text-3xl font-bold mb-8 text-center">
                         Get in Touch
                     </h2>
-                    <form ref={formRef} onSubmit={formik.handleSubmit} className="mb-12">
+                    <form
+                        ref={formRef}
+                        onSubmit={formik.handleSubmit}
+                        className="mb-12"
+                    >
                         <div className="grid md:grid-cols-2 gap-6 mb-6">
                             <Input
                                 id="name"
@@ -334,7 +340,7 @@ export default function AboutContactPage() {
                                 value={formik.values.email}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                placeholder="Email" 
+                                placeholder="Email"
                                 required
                             />
                         </div>

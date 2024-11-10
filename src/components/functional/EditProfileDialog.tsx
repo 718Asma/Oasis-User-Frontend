@@ -1,5 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import React from "react";
 
 import { Student } from "@/lib/types";
 import { updateProfile } from "@/services/userService";
@@ -22,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const validationSchema = Yup.object({
     firstName: Yup.string()
@@ -32,22 +34,14 @@ const validationSchema = Yup.object({
         .min(3, "Last name must be at least 3 characters")
         .max(100, "Last name must be at most 100 characters")
         .required("Last name is required"),
-    dateOfBirth: Yup.date()
-        .notRequired(),
-    gender: Yup.string()
-        .notRequired(),
-    country: Yup.string()
-        .notRequired(),
-    university: Yup.string()
-        .notRequired(),
-    courseOfStudy: Yup.string()
-        .notRequired(),
-    yearOfStudy: Yup.string()
-        .notRequired(),
-    levelOfStudy: Yup.string()
-        .notRequired(),
-    fieldOfStudy: Yup.string()
-        .notRequired(),
+    dateOfBirth: Yup.date().notRequired(),
+    gender: Yup.string().notRequired(),
+    country: Yup.string().notRequired(),
+    university: Yup.string().notRequired(),
+    courseOfStudy: Yup.string().notRequired(),
+    yearOfStudy: Yup.string().notRequired(),
+    levelOfStudy: Yup.string().notRequired(),
+    fieldOfStudy: Yup.string().notRequired(),
 });
 
 interface EditProfileDialogProps {
@@ -61,35 +55,61 @@ export default function EditProfileDialog({
     setIsEditProfileOpen,
     user,
 }: EditProfileDialogProps) {
+    const { toast } = useToast();
     const formik = useFormik({
         initialValues: {
-            firstName: user?.firstName || "",
-            lastName: user?.lastName || "",
-            dateOfBirth: user?.dateOfBirth ? new Date(user.dateOfBirth) : null,
-            gender: user?.gender || "",
-            country: user?.country || "",
-            university: user?.university || "",
-            courseOfStudy: user?.courseOfStudy || "",
-            levelOfStudy: user?.levelOfStudy || "",
-            fieldOfStudy: user?.fieldOfStudy || "",
+            firstName: user?.firstName || undefined,
+            lastName: user?.lastName || undefined,
+            dateOfBirth: user?.dateOfBirth
+                ? new Date(user.dateOfBirth)
+                : undefined,
+            gender: user?.gender || undefined,
+            country: user?.country || undefined,
+            university: user?.university || undefined,
+            courseOfStudy: user?.courseOfStudy || undefined,
+            levelOfStudy: user?.levelOfStudy || undefined,
+            fieldOfStudy: user?.fieldOfStudy || undefined,
         },
         validationSchema,
         enableReinitialize: true,
         onSubmit: async (values) => {
             const updatedValues = {
                 ...values,
-                dateOfBirth: values.dateOfBirth ? values.dateOfBirth.toISOString().split("T")[0] : "",
+                dateOfBirth:
+                    values.dateOfBirth instanceof Date
+                        ? values.dateOfBirth.toISOString().split("T")[0]
+                        : values.dateOfBirth || undefined,
             };
-    
+
             console.log("Updated values:", updatedValues);
-    
+
             try {
-                const data = await updateProfile(updatedValues);
+                // filter out undefined values
+                const filteredValues = Object.fromEntries(
+                    Object.entries(updatedValues).filter(
+                        ([value]) => value !== undefined
+                    )
+                );
+                console.log("Filtered values:", filteredValues);
+                const data = await updateProfile(filteredValues);
+                toast({
+                    title: "Profile updated",
+                    description: "Profile updated successfully!",
+                    duration: 2000,
+                    variant: "success",
+                });
                 console.log("Response:", data);
                 user = data;
                 setIsEditProfileOpen(false);
             } catch (error) {
                 console.error("Error updating profile:", error);
+                toast({
+                    title: "Error updating profile",
+                    description:
+                        "An error occurred while updating your profile",
+                    duration: 2000,
+                    variant: "destructive",
+                });
             }
         },
     });

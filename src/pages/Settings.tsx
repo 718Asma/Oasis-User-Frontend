@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import React from "react";
 
 import { Student } from "@/lib/types";
 import { deleteUser, getProfile, updateAvatar } from "../services/userService";
@@ -25,6 +26,7 @@ import {
     ArrowLeft,
     User,
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
     const { userId } = useParams<{ userId: string }>();
@@ -33,7 +35,7 @@ export default function SettingsPage() {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isPasswordOpen, setIsPasswordOpen] = useState(false);
     const [user, setUser] = useState<Student>();
-
+    const { toast } = useToast();
     const fetchUser = async () => {
         try {
             const data = await getProfile();
@@ -83,7 +85,13 @@ export default function SettingsPage() {
             try {
                 const response = await resendVerificationEmail(user.email);
                 console.log("Response:", response);
-                alert("Account verification email sent successfully!");
+                toast({
+                    title: "Verification email sent",
+                    description:
+                        "Account verification email sent successfully!",
+                    duration: 2000,
+                    variant: "success",
+                });
                 fetchUser();
             } catch (error) {
                 console.error("Error verifying account:", error);

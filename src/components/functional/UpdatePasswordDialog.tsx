@@ -1,5 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import React from "react";
 
 import { changePassword } from "@/services/userService";
 
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Lock, ChevronRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const validationSchema = Yup.object({
     oldPassword: Yup.string().required("Current password is required"),
@@ -40,6 +42,7 @@ export default function UpdatePasswordDialog({
     isPasswordOpen,
     setIsPasswordOpen,
 }: UpdatePasswordDialogProps) {
+    const { toast } = useToast();
     const formik = useFormik({
         initialValues: {
             oldPassword: "",
@@ -58,8 +61,21 @@ export default function UpdatePasswordDialog({
                 const response = await changePassword(updatedValues);
                 console.log("Response:", response);
                 setIsPasswordOpen(false);
+                toast({
+                    title: "Password updated",
+                    description: "Password updated successfully!",
+                    duration: 2000,
+                    variant: "success",
+                });
             } catch (error) {
                 console.error("Error updating profile:", error);
+                toast({
+                    title: "Error updating password",
+                    description:
+                        "An error occurred while updating your password",
+                    duration: 2000,
+                    variant: "destructive",
+                });
             }
         },
     });
