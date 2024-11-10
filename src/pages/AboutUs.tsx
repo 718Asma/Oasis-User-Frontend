@@ -232,80 +232,70 @@ export default function AboutContactPage() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
                         <div className="text-center">
                             <img
-                                src="/placeholder.svg?height=150&width=150"
-                                alt="Team Member 1"
-                                width={150}
-                                height={150}
-                                className="rounded-full mx-auto mb-4"
+                                src="src\assets\Yassine.png"
+                                alt="Yassine"
+                                className="rounded-full mx-auto mb-4 h-32 w-32"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
                                 Yassine Krichen
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {/* <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Co-Founder & CEO
-                            </p>
+                            </p> */}
                         </div>
                         <div className="text-center">
                             <img
-                                src="/placeholder.svg?height=150&width=150"
-                                alt="Team Member 2"
-                                width={150}
-                                height={150}
-                                className="rounded-full mx-auto mb-4"
+                                src="src\assets\Asma.png"
+                                alt="Asma"
+                                className="rounded-full mx-auto mb-4 h-32 w-32"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
                                 Asma Khelifi
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {/* <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Co-Founder & CTO
-                            </p>
+                            </p> */}
                         </div>
                         <div className="text-center">
                             <img
-                                src="/placeholder.svg?height=150&width=150"
-                                alt="Team Member 3"
-                                width={150}
-                                height={150}
-                                className="rounded-full mx-auto mb-4"
+                                src="src\assets\Talel.png"
+                                alt="Talel"
+                                className="rounded-full mx-auto mb-4 h-32 w-32"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
                                 Talel Turki
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {/* <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Head of Partnerships
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                     <div className="grid grid-cols-2 mt-8 max-w-3xl mx-auto">
                         <div className="text-center">
                             <img
-                                src="/placeholder.svg?height=150&width=150"
-                                alt="Team Member 4"
-                                width={150}
-                                height={150}
-                                className="rounded-full mx-auto mb-4"
+                                src="src\assets\Arij.jpg"
+                                alt="Arij"
+                                className="rounded-full mx-auto mb-4 h-32 w-32"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
                                 Arij Hamraoui
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {/* <p className="text-sm text-gray-600 dark:text-gray-300">
                                 Lead Developer
-                            </p>
+                            </p> */}
                         </div>
                         <div className="text-center">
                             <img
-                                src="/placeholder.svg?height=150&width=150"
-                                alt="Team Member 5"
-                                width={150}
-                                height={150}
-                                className="rounded-full mx-auto mb-4"
+                                src="src\assets\Yorna.jpg"
+                                alt="Yorna"
+                                className="rounded-full mx-auto mb-4 h-32 w-32"
                             />
                             <h3 className="font-semibold dark:text-gray-200">
                                 Yorna Salouej
                             </h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {/* <p className="text-sm text-gray-600 dark:text-gray-300">
                                 UX Designer
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                 </div>

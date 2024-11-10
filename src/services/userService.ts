@@ -24,8 +24,9 @@ export const getUserById = async (id: string) => {
 
 // Change password
 export const changePassword = async (values: {oldPassword:string, newPassword: string}) => {
+  console.log(values);
   try {
-    const response = await apiClient.post('/users/change-password', { values });
+    const response = await apiClient.post('/users/change-password', { oldPassword: values.oldPassword, newPassword: values.newPassword });
     return response.data;
   } catch (error) {
     console.error('Error changing password:', error);
