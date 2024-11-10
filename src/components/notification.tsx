@@ -49,14 +49,14 @@ export function Notification() {
         try {
             const response = await markAsRead(notification._id);
             console.log("Mark as read response:", response);
+            setNotifications((prevNotifications) =>
+                prevNotifications.map((notif) =>
+                    notif._id === notification._id ? { ...notif, isRead: true } : notif
+                )
+            );
         } catch (error) {
             console.error(error);
         }
-        setNotifications((prevNotifications) =>
-            prevNotifications.map((notif) =>
-                notif._id === notification._id ? { ...notif, isRead: true } : notif
-            )
-        );
         console.log("Notification clicked:", notification);
     };
 
