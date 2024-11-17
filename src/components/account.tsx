@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { logout } from "@/services/authService";
 
 export function AccountDropdown() {
     const navigate = useNavigate();
@@ -35,11 +36,17 @@ export function AccountDropdown() {
         fetchUser();
     }, [user_id]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("user_id");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            const response = await logout();
+            console.log(response);
+            localStorage.removeItem("user_id");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            navigate("/login");
+        } catch (error) {
+            console.error("Error logging out:", error);
+        }
     };
 
     return (

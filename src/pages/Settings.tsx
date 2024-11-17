@@ -36,6 +36,7 @@ export default function SettingsPage() {
     const [isPasswordOpen, setIsPasswordOpen] = useState(false);
     const [user, setUser] = useState<Student>();
     const { toast } = useToast();
+    
     const fetchUser = async () => {
         try {
             const data = await getProfile();

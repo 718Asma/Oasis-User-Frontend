@@ -108,7 +108,10 @@ export const resetPassword = async (
 // Log out
 export const logout = async () => {
     try {
-        const response = await apiClient.get("/auth/logout");
+        const response = await apiClient.get("/auth/logout", {
+            withCredentials: true,
+        });
+        console.log(response);
         return response.data;
     } catch (error) {
         console.error("Error logging out:", error);
