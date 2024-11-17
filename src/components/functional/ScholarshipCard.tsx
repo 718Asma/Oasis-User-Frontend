@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useToast } from "@/hooks/use-toast";
 import { Scholarship } from "@/lib/types";
 import {
     addFavorite,
     getFavorites,
     removeFavorite,
 } from "@/services/userService";
+import { verifyToken } from "@/services/authService";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,16 +29,30 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
     scholarship,
 }) => {
     const navigate = useNavigate();
+    const { toast } = useToast();
     const [isFavorite, setIsFavorite] = useState<boolean>(false);
-    const userId = localStorage.getItem("user_id") || null;
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
     const handleDetails = () => {
         navigate(`/scholarship/${scholarship._id}`);
     };
 
     useEffect(() => {
+        const checkLoggedIn = async () => {
+            try {
+                await verifyToken();
+                setLoggedIn(true);
+            } catch (error) {
+                console.error("Error verifying token:", error);
+            }
+        };
+
+        checkLoggedIn();
+    }, []);
+
+    useEffect(() => {
         const fetchFavorites = async () => {
-            if (userId === null) {
+            if (!loggedIn) {
                 return;
             }
             try {
@@ -50,9 +66,9 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
             }
         };
 
-        if(userId !== null)
+        if(loggedIn)
             fetchFavorites();
-    }, [scholarship, userId]);
+    }, [scholarship, loggedIn]);
 
     const handleFavorite = async () => {
         if (isFavorite) {
@@ -67,6 +83,12 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
             const data = await addFavorite(scholarship._id);
             console.log("Success", data);
             setIsFavorite(true);
+            toast({
+                description:
+                    "Scholarship added to favorites successfully!",
+                duration: 2000,
+                variant: "success",
+            });
         } catch (error) {
             console.error(error);
         }
@@ -77,6 +99,12 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
             const data = await removeFavorite(scholarship._id);
             console.log("Success", data);
             setIsFavorite(false);
+            toast({
+                description:
+                    "Scholarship removed from favorites successfully!",
+                duration: 2000,
+                variant: "warning",
+            });
         } catch (error) {
             console.error(error);
         }
@@ -121,7 +149,7 @@ const ScholarshipComponent: React.FC<ScholarshipCardProps> = ({
                 <Button variant="outline" onClick={handleDetails}>
                     Check more details
                 </Button>
-                {userId !== null && (
+                {loggedIn && (
                     <Button
                         variant="outline"
                         style={{ border: "none" }}

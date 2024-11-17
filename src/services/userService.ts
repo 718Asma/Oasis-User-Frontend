@@ -11,6 +11,18 @@ export const getProfile = async () => {
     }
 };
 
+// Get the number of users
+export const getUsersCount = async () => {
+    try {
+        const response = await apiClient.get("/users/count");
+        const usersCount = response.data.count; 
+        return usersCount;
+    } catch (error) {
+        console.error("Error fetching users count:", error);
+        throw error;
+    }
+};
+
 // Get user by ID
 export const getUserById = async (id: string) => {
     try {
@@ -171,6 +183,16 @@ export const getNotifications = async () => {
     }
 };
 
+export const getUnreadNotificationsCount = async () => {
+    try {
+        const response = await apiClient.get("/users/unread-notifications-count");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching unread notifications:", error);
+        throw error;
+    }
+}
+
 // Mark notification as read
 export const markAsRead = async (notificationId: string) => {
     try {
@@ -180,6 +202,17 @@ export const markAsRead = async (notificationId: string) => {
         return response;
     } catch (error) {
         console.error("Error marking notification as read:", error);
+        throw error;
+    }
+};
+
+// Mark all notifications as read
+export const markAllAsRead = async () => {
+    try {
+        const response = await apiClient.post("/users/mark-all-notifications-read");
+        return response;
+    } catch (error) {
+        console.error("Error marking all notifications as read:", error);
         throw error;
     }
 };

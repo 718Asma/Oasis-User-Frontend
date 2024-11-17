@@ -31,10 +31,15 @@ export default function Home() {
         const fetchScholarships = async () => {
             try {
                 const data = await getScholarships();
-
                 console.log("Scholarships:", data);
+
+                if(data.length === 0){
+                    setNoResultsMessage("No scholarships found.");
+                }
+                
                 setAllScholarships(data);
                 setScholarships(data);
+
             } catch (error) {
                 console.error("Error fetching scholarships:", error);
             }
@@ -165,6 +170,7 @@ export default function Home() {
                                 setFiltered={setFiltered}
                                 applyFilters={setScholarships}
                                 closeSidebar={toggleSidebar}
+                                setNoResultsMessage={setNoResultsMessage}
                             />
                         </div>
                     </div>

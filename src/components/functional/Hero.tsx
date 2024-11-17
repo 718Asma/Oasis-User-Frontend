@@ -1,14 +1,7 @@
-import {
-    ArrowRight,
-    BookOpen,
-    ClipboardCheck,
-    DollarSign,
-    GraduationCap,
-    Search,
-    Trophy,
-    Users,
-} from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { getScholarshipsCount } from "@/services/scholarshipService";
+
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -19,7 +12,50 @@ import {
     DialogTrigger,
 } from "../ui/dialog";
 
+import {
+    ArrowRight,
+    BookOpen,
+    ClipboardCheck,
+    DollarSign,
+    GraduationCap,
+    Search,
+    Trophy,
+    Users,
+} from "lucide-react";
+import { getUsersCount } from "@/services/userService";
+
 const Hero: React.FC<{ scrollToSearch: () => void }> = ({ scrollToSearch }) => {
+    const [scholarshipsCount, setScholarshipsCount] = useState(0);
+    const [studentCount, setStudentCount] = useState(0);
+
+    useEffect(() => {
+        const fetchScholarshipsCount = async () => {
+            try {
+                const count = await getScholarshipsCount();
+                setScholarshipsCount(count);
+            } catch (error) {
+                console.error("Error fetching scholarships count:", error);
+            }
+        }
+
+        fetchScholarshipsCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchStudentCount = async () => {
+            try {
+                const count = await getUsersCount();
+                setStudentCount(count);
+            }
+            catch (error) {
+                console.error("Error fetching student count:", error);
+            }
+        }
+
+        fetchStudentCount();
+    }, []);
+
+
     return (
         <header className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-24 lg:py-32">
             <div className="container mx-auto px-4 text-center">
@@ -115,18 +151,18 @@ const Hero: React.FC<{ scrollToSearch: () => void }> = ({ scrollToSearch }) => {
                 </div>
                 <div className="mt-12 flex justify-center space-x-8">
                     <div className="text-center">
-                        <DollarSign className="h-10 w-10 mx-auto mb-2" />
-                        <h3 className="text-4xl font-bold">1000+</h3>
+                        <GraduationCap className="h-10 w-10 mx-auto mb-2" />
+                        <h3 className="text-4xl font-bold">{scholarshipsCount}+</h3>
                         <p className="text-lg">Scholarships</p>
                     </div>
-                    <div className="text-center">
-                        <Users className="h-10 w-10 mx-auto mb-2" />
+                    {/* <div className="text-center">
+                        <DollarSign className="h-10 w-10 mx-auto mb-2" />
                         <h3 className="text-4xl font-bold">$5M+</h3>
                         <p className="text-lg">Awarded</p>
-                    </div>
+                    </div> */}
                     <div className="text-center">
-                        <GraduationCap className="h-10 w-10 mx-auto mb-2" />
-                        <h3 className="text-4xl font-bold">50k+</h3>
+                        <Users className="h-10 w-10 mx-auto mb-2" />
+                        <h3 className="text-4xl font-bold">{studentCount}+</h3>
                         <p className="text-lg">Students Helped</p>
                     </div>
                 </div>

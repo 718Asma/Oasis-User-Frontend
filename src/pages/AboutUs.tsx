@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { toast } from "react-toastify";
-// import emailjs from '@emailjs/browser';
 import emailjs from "emailjs-com";
+import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +46,7 @@ const validationSchema = Yup.object({
 export default function AboutContactPage() {
     const navigate = useNavigate();
     const formRef = useRef(null);
+    const { toast } = useToast();
 
     const formik = useFormik({
         initialValues: {
@@ -77,14 +77,22 @@ export default function AboutContactPage() {
                     .then(
                         (response) => {
                             console.log("SUCCESS!", response);
-                            toast.success("Message sent successfully!");
+                            toast({
+                                description:
+                                    "Message sent successfully!",
+                                duration: 2000,
+                                variant: "success",
+                            });
                             formik.resetForm();
                         },
                         (error) => {
                             console.error("FAILED...", error);
-                            toast.error(
-                                "Something went wrong. Please try again later."
-                            );
+                            toast({
+                                description:
+                                    "Something went wrong. Please try again later.",
+                                duration: 2000,
+                                variant: "destructive",
+                            });
                         }
                     );
             } catch (error) {

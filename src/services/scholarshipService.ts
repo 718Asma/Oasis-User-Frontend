@@ -11,6 +11,17 @@ export const getScholarships = async () => {
   }
 };
 
+// Get the number of scholarships
+export const getScholarshipsCount = async () => {
+  try {
+    const response = await apiClient.get('/scholarships/count');
+    return response.data.count;
+  } catch (error) {
+    console.error('Error fetching scholarships count:', error);
+    throw error;
+  }
+}
+
 // Get a distinct list of scholarship locations
 export const getScholarshipLocations = async () => {
   try {
@@ -58,12 +69,12 @@ export const getScholarshipById = async (id: string) => {
 };
 
 // Get scholarships by deadline
-// export const getScholarshipsByDeadline = async (deadline: string) => {
-//   try {
-//     const response = await apiClient.get(`/scholarships/deadline/${deadline}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching scholarships by deadline:', error);
-//     throw error;
-//   }
-// };
+export const getScholarshipsByDeadline = async (deadline: string) => {
+  try {
+    const response = await apiClient.get(`/scholarships/deadline/${deadline}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching scholarships by deadline:', error);
+    throw error;
+  }
+};

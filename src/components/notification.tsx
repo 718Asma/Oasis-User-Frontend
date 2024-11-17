@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getNotifications, markAsRead } from "@/services/userService";
+import { getNotifications, getUnreadNotificationsCount, markAllAsRead, markAsRead } from "@/services/userService";
 import { Notif } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,39 +14,54 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Bell, ChevronRight } from "lucide-react";
-import { toast } from "react-toastify";
 
 export function Notification() {
     const navigate = useNavigate();
     const [unreadCount, setUnreadCount] = useState(0);
     const [notified, setNotified] = useState(false);
     const [notifications, setNotifications] = useState<Notif[]>([]);
+    const { toast } = useToast();
 
-    const fetchNotifications = useCallback(async () => {
-        try {
-            const { data } = await getNotifications();
-            data.forEach((notification: Notif) => {
-                notification.date = new Date(notification.date).toLocaleDateString();
-            });
-            console.log("Notifications:", data);
-            setNotifications(data);
-            setUnreadCount(notifications.filter(notification => notification.isRead === false).length);
-            if(unreadCount > 0 && !notified){
-                toast.warn("You have new notifications!");
-                setNotified(true);
+    useEffect(() => {
+        const fetchNotifications = (async () => {
+            try {
+                const { data } = await getNotifications();
+                data.forEach((notification: Notif) => {
+                    notification.date = new Date(notification.date).toLocaleDateString();
+                });
+                console.log("Notifications:", data);
+                setNotifications(data);
+                if(unreadCount > 0 && !notified){
+                    toast({
+                        description:
+                            "You have new notifications!",
+                        duration: 2000,
+                        variant: "warning",
+                    });
+                    setNotified(true);
+                }
+            } catch (error) {
+                console.error(error);
             }
-            console.log("Unread count:", unreadCount);
-        } catch (error) {
-            console.error(error);
-        }
+            console.log(notifications);
+        });
+        fetchNotifications();
     }, []);
 
     useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
+        const fetchUnreadNotificationsCount = async () => {
+            try {
+                const response = await getUnreadNotificationsCount();
+                setUnreadCount(response.unreadCount);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchUnreadNotificationsCount();
+    }, []);
 
     const handleNotificationClick = async (notification: Notif) => {
-        navigate(`/scholarship/${notification.scholarshipId}`);
+        navigate(`/scholarship/${notification.scholarshipId._id}`);
         try {
             const response = await markAsRead(notification._id);
             console.log("Mark as read response:", response);
@@ -58,6 +74,25 @@ export function Notification() {
             console.error(error);
         }
         console.log("Notification clicked:", notification);
+    };
+
+    const handleAllRead = async () => {
+        try {
+            const response = await markAllAsRead();
+            console.log("Mark all as read response:", response);
+            setNotifications((prevNotifications) =>
+                prevNotifications.map((notif) => ({ ...notif, isRead: true }))
+            );
+            setUnreadCount(0);
+            toast({
+                description:
+                    "All notifications marked as read!",
+                duration: 2000,
+                variant: "warning",
+            });
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -79,22 +114,34 @@ export function Notification() {
                 {notifications.length === 0 ? (
                     <DropdownMenuItem disabled className="text-gray-500 text-center">No notifications</DropdownMenuItem>
                 ) : (
-                    notifications.map((notification) => (
-                        <DropdownMenuItem
-                            key={notification._id}
-                            onClick={() => handleNotificationClick(notification)}
-                            className="flex justify-between items-center px-6 py-3 text-sm text-gray-800 hover:bg-gray-100 rounded-lg transition-all"
-                        >
-                            <span>{notification.message}</span>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column' }}>
-                                <span style={{ fontSize: '10px' }}>{notification.date}</span>
-                                <ChevronRight
-                                    style={{ marginLeft: '1.5rem' }}
-                                    className="text-gray-400"
-                                />
+                    <>
+                        {notifications.map((notification) => (
+                            <DropdownMenuItem
+                                key={notification._id}
+                                onClick={() => handleNotificationClick(notification)}
+                                className="flex justify-between items-center px-6 py-3 text-sm text-gray-800 hover:bg-gray-100 rounded-lg transition-all"
+                            >
+                                <span className={`flex-grow ${notification.isRead ? '' : 'font-bold'}`}>
+                                    {notification.message}
+                                </span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-xs text-gray-500">{notification.date}</span>
+                                    <ChevronRight className="text-gray-400 ml-6" />
+                                </div>
+                            </DropdownMenuItem>
+                        ))}
+                        {unreadCount > 0 && 
+                            <div className="px-4 py-2">
+                                <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={handleAllRead}
+                                >
+                                    Mark all as read
+                                </Button>
                             </div>
-                        </DropdownMenuItem>
-                    ))
+                        }
+                    </>
                 )}
             </DropdownMenuContent>
         </DropdownMenu>

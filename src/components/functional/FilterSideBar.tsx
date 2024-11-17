@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { Scholarship } from "@/lib/types";
-import { getScholarshipLocations } from "@/services/scholarshipService";
+import { useToast } from "@/hooks/use-toast";
+import { getScholarshipLocations, getScholarshipsByDeadline, getScholarshipsByLocation } from "@/services/scholarshipService";
 import { getFavorites } from "@/services/userService";
+import { verifyToken } from "@/services/authService";
 
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
@@ -16,13 +18,13 @@ import {
 } from "@/components/ui/select";
 
 import "../styles/FilterSideBar.css";
-import { verifyToken } from "@/services/authService";
 
 interface FilterSideBarProps {
     filteredScholarships: Scholarship[];
     setFiltered: (filtered: boolean) => void;
     applyFilters: (filteredScholarships: Scholarship[]) => void;
     closeSidebar: () => void;
+    setNoResultsMessage : (message: string) => void;
 }
 
 const FilterSideBar: React.FC<FilterSideBarProps> = ({
@@ -30,12 +32,14 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
     setFiltered,
     applyFilters,
     closeSidebar,
+    setNoResultsMessage,
 }) => {
     const [locations, setLocations] = useState<string[]>([]);
     const [location, setLocation] = useState<string>("");
     const [deadline, setDeadline] = useState<Date | null>(null);
     const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         const fetchLocations = async () => {
@@ -73,22 +77,39 @@ const FilterSideBar: React.FC<FilterSideBarProps> = ({
         console.log(filteredList);
 
         if (location != "all" && location != "") {
-            filteredList = filteredList.filter(
-                (scholarship) => scholarship.location == location
-            );
+            const response = await getScholarshipsByLocation(location);
+            console.log(response);
+
+            if(response.length === 0) {
+                filteredList = [];
+                toast({
+                    description:
+                        "No scholarships found in the specified location.",
+                    duration: 2000,
+                    variant: "default",
+                });
+                setNoResultsMessage("No scholarships found in the specified location.");
+            } else {
+                filteredList = response;
+            }
         }
         if (deadline != null) {
-            filteredList = filteredList.filter((scholarship) => {
-                const scholarshipDeadline = new Date(scholarship.deadline);
-                console.log(scholarshipDeadline);
+            const date = deadline.toISOString().split("T")[0];
+            const response = await getScholarshipsByDeadline(date);
+            console.log(response);
 
-                return (
-                    scholarshipDeadline.getFullYear() ===
-                        deadline.getFullYear() &&
-                    scholarshipDeadline.getMonth() === deadline.getMonth() &&
-                    scholarshipDeadline.getDate() === deadline.getDate()
-                );
-            });
+            if(response.length === 0) {
+                filteredList = [];
+                toast({
+                    description:
+                        "No scholarships found with the specified deadline.",
+                    duration: 2000,
+                    variant: "default",
+                });
+                setNoResultsMessage("No scholarships found with the specified deadline.");
+            } else {
+                filteredList = response;
+            }
         }
         if (favoritesOnly) {
             try {

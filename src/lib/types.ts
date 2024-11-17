@@ -30,7 +30,7 @@ export interface Scholarship {
 
 export interface Notif {
     _id: string;
-    scholarshipId: string;
+    scholarshipId: {_id: string, title: string, deadline: string};
     date: string;
     message: string;
     isRead: boolean;
